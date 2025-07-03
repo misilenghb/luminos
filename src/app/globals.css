@@ -1,0 +1,685 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+
+  [data-theme='night'] {
+    --background: 210 20% 15%;
+    --foreground: 0 0% 98%;
+    --card: 210 20% 20%;
+    --card-foreground: 0 0% 95%;
+    --popover: 210 20% 18%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 210 60% 60%;
+    --primary-foreground: 210 20% 10%;
+    --secondary: 180 50% 30%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 210 15% 30%;
+    --muted-foreground: 210 15% 65%;
+    --accent: 180 50% 50%;
+    --accent-foreground: 210 20% 10%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 210 20% 30%;
+    --input: 210 20% 25%;
+    --ring: 210 60% 70%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+
+  [data-theme='morning'] {
+    --background: 0 0% 100%;
+    --foreground: 224 71.4% 4.1%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71.4% 4.1%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71.4% 4.1%;
+    --primary: 220 90% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 220 8.9% 46.1%;
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+    --accent: 45 90% 60%;
+    --accent-foreground: 224 71.4% 4.1%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 220 90% 60%;
+    --chart-1: 220 75% 55%;
+    --chart-2: 45 90% 65%;
+    --chart-3: 10 80% 60%;
+    --chart-4: 170 60% 50%;
+    --chart-5: 350 80% 65%;
+  }
+
+  [data-theme='noon'] {
+    --background: 0 0% 100%;
+    --foreground: 220 15% 10%;
+    --card: 210 20% 98%;
+    --card-foreground: 220 15% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 10%;
+    --primary: 215 90% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 20% 90%;
+    --secondary-foreground: 220 15% 10%;
+    --muted: 210 20% 94%;
+    --muted-foreground: 220 10% 40%;
+    --accent: 50 100% 50%;
+    --accent-foreground: 220 15% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 210 20% 88%;
+    --input: 210 20% 93%;
+    --ring: 215 90% 55%;
+    --chart-1: 215 90% 55%;
+    --chart-2: 50 100% 50%;
+    --chart-3: 10 80% 55%;
+    --chart-4: 160 70% 45%;
+    --chart-5: 280 70% 60%;
+  }
+
+  [data-theme='dusk'] {
+    --background: 240 10% 15%;
+    --foreground: 30 30% 92%;
+    --card: 240 10% 20%;
+    --card-foreground: 30 30% 95%;
+    --popover: 240 10% 18%;
+    --popover-foreground: 30 30% 95%;
+    --primary: 25 95% 60%;
+    --primary-foreground: 25 20% 10%;
+    --secondary: 240 8% 25%;
+    --secondary-foreground: 30 30% 98%;
+    --muted: 240 8% 30%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 260 50% 65%;
+    --accent-foreground: 260 20% 98%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 10% 30%;
+    --input: 240 10% 25%;
+    --ring: 25 95% 70%;
+    --chart-1: 25 95% 60%;
+    --chart-2: 260 50% 65%;
+    --chart-3: 320 60% 60%;
+    --chart-4: 190 50% 55%;
+    --chart-5: 50 80% 60%;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  .rdp-caption_dropdowns select {
+    background-color: hsl(var(--input));
+    color: hsl(var(--foreground));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    padding: 0.25rem 0.5rem;
+    margin: 0 0.25rem;
+  }
+  .rdp-caption_dropdowns select:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    border-color: hsl(var(--ring));
+    box-shadow: 0 0 0 2px hsl(var(--ring));
+  }
+  .rdp-caption_dropdowns select option {
+    color: hsl(var(--foreground)) !important;
+  }
+}
+
+@layer utilities {
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
+  }
+
+  .halo-effect {
+    position: relative;
+    display: inline-block;
+  }
+
+  .halo-effect::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 120%; 
+    height: 120%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, hsl(var(--primary) / 0.3), transparent 70%);
+    filter: blur(20px);
+    opacity: 0;
+    animation: pulse-halo 4s infinite ease-in-out;
+    z-index: -1;
+  }
+  
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@keyframes pulse-halo {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+/* 水晶日历专用样式 */
+@layer components {
+  /* 渐变文字效果 */
+  .gradient-text {
+    @apply bg-gradient-to-r from-purple-600 via-blue-600 to-emerald-600 bg-clip-text text-transparent;
+  }
+
+  .gradient-text-warm {
+    @apply bg-gradient-to-r from-orange-400 via-red-500 to-pink-500 bg-clip-text text-transparent;
+  }
+
+  .gradient-text-cool {
+    @apply bg-gradient-to-r from-blue-400 via-purple-500 to-indigo-600 bg-clip-text text-transparent;
+  }
+
+  /* 光晕效果 */
+  .halo-effect {
+    @apply drop-shadow-2xl;
+    filter: drop-shadow(0 0 20px rgba(147, 51, 234, 0.3));
+  }
+
+  .halo-effect-warm {
+    filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.3));
+  }
+
+  .halo-effect-cool {
+    filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.3));
+  }
+
+  /* 卡片渐变背景 */
+  .card-gradient {
+    @apply bg-gradient-to-br from-white via-blue-50 to-purple-50;
+  }
+
+  .dark .card-gradient {
+    @apply from-gray-900 via-blue-950 to-purple-950;
+  }
+
+  .card-gradient-warm {
+    @apply bg-gradient-to-br from-orange-50 via-red-50 to-pink-50;
+  }
+
+  .dark .card-gradient-warm {
+    @apply from-orange-950 via-red-950 to-pink-950;
+  }
+
+  .card-gradient-cool {
+    @apply bg-gradient-to-br from-blue-50 via-indigo-50 to-cyan-50;
+  }
+
+  .dark .card-gradient-cool {
+    @apply from-blue-950 via-indigo-950 to-cyan-950;
+  }
+
+  /* 能量状态指示器 */
+  .energy-indicator {
+    @apply relative inline-flex h-3 w-3 rounded-full;
+  }
+
+  .energy-indicator::before {
+    @apply absolute h-full w-full rounded-full animate-ping;
+    content: '';
+  }
+
+  .energy-indicator.energy-low {
+    @apply bg-blue-400;
+  }
+
+  .energy-indicator.energy-low::before {
+    @apply bg-blue-400;
+  }
+
+  .energy-indicator.energy-medium {
+    @apply bg-yellow-400;
+  }
+
+  .energy-indicator.energy-medium::before {
+    @apply bg-yellow-400;
+  }
+
+  .energy-indicator.energy-high {
+    @apply bg-red-400;
+  }
+
+  .energy-indicator.energy-high::before {
+    @apply bg-red-400;
+  }
+
+  /* 脉轮色彩系统 */
+  .chakra-root {
+    @apply text-red-600 bg-red-50 border-red-200;
+  }
+
+  .dark .chakra-root {
+    @apply text-red-400 bg-red-950 border-red-800;
+  }
+
+  .chakra-sacral {
+    @apply text-orange-600 bg-orange-50 border-orange-200;
+  }
+
+  .dark .chakra-sacral {
+    @apply text-orange-400 bg-orange-950 border-orange-800;
+  }
+
+  .chakra-solar-plexus {
+    @apply text-yellow-600 bg-yellow-50 border-yellow-200;
+  }
+
+  .dark .chakra-solar-plexus {
+    @apply text-yellow-400 bg-yellow-950 border-yellow-800;
+  }
+
+  .chakra-heart {
+    @apply text-green-600 bg-green-50 border-green-200;
+  }
+
+  .dark .chakra-heart {
+    @apply text-green-400 bg-green-950 border-green-800;
+  }
+
+  .chakra-throat {
+    @apply text-blue-600 bg-blue-50 border-blue-200;
+  }
+
+  .dark .chakra-throat {
+    @apply text-blue-400 bg-blue-950 border-blue-800;
+  }
+
+  .chakra-third-eye {
+    @apply text-indigo-600 bg-indigo-50 border-indigo-200;
+  }
+
+  .dark .chakra-third-eye {
+    @apply text-indigo-400 bg-indigo-950 border-indigo-800;
+  }
+
+  .chakra-crown {
+    @apply text-purple-600 bg-purple-50 border-purple-200;
+  }
+
+  .dark .chakra-crown {
+    @apply text-purple-400 bg-purple-950 border-purple-800;
+  }
+
+  /* 元素色彩系统 */
+  .element-fire {
+    @apply text-red-600 bg-red-50 border-red-200;
+  }
+
+  .dark .element-fire {
+    @apply text-red-400 bg-red-950 border-red-800;
+  }
+
+  .element-water {
+    @apply text-blue-600 bg-blue-50 border-blue-200;
+  }
+
+  .dark .element-water {
+    @apply text-blue-400 bg-blue-950 border-blue-800;
+  }
+
+  .element-earth {
+    @apply text-green-600 bg-green-50 border-green-200;
+  }
+
+  .dark .element-earth {
+    @apply text-green-400 bg-green-950 border-green-800;
+  }
+
+  .element-air {
+    @apply text-yellow-600 bg-yellow-50 border-yellow-200;
+  }
+
+  .dark .element-air {
+    @apply text-yellow-400 bg-yellow-950 border-yellow-800;
+  }
+
+  .element-ether {
+    @apply text-purple-600 bg-purple-50 border-purple-200;
+  }
+
+  .dark .element-ether {
+    @apply text-purple-400 bg-purple-950 border-purple-800;
+  }
+
+  /* 水晶效果 */
+  .crystal-shimmer {
+    @apply relative overflow-hidden;
+  }
+
+  .crystal-shimmer::before {
+    content: '';
+    @apply absolute top-0 left-0 w-full h-full;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+    transform: translateX(-100%);
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* 冥想计时器圆环 */
+  .meditation-ring {
+    @apply relative w-40 h-40 rounded-full;
+    background: conic-gradient(from 0deg, #8b5cf6, #06b6d4, #10b981, #8b5cf6);
+    padding: 4px;
+  }
+
+  .meditation-ring::before {
+    content: '';
+    @apply absolute inset-1 rounded-full bg-background;
+  }
+
+  /* 能量流动动画 */
+  .energy-flow {
+    @apply relative overflow-hidden;
+  }
+
+  .energy-flow::after {
+    content: '';
+    @apply absolute inset-0 opacity-20;
+    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), transparent);
+    transform: translateX(-100%);
+    animation: flow 3s ease-in-out infinite;
+  }
+
+  @keyframes flow {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* 响应式容器 */
+  .crystal-container {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* 统一的阴影系统 */
+  .shadow-crystal {
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+  }
+
+  .shadow-crystal-lg {
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.2);
+  }
+
+  .shadow-energy {
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+  }
+
+  .shadow-energy-lg {
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.2);
+  }
+
+  /* 平滑过渡 */
+  .transition-crystal {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .transition-energy {
+    @apply transition-all duration-500 ease-in-out;
+  }
+
+  /* 加载状态 */
+  .loading-shimmer {
+    @apply animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200;
+    background-size: 200% 100%;
+    animation: loading-shimmer 1.5s ease-in-out infinite;
+  }
+
+  .dark .loading-shimmer {
+    @apply from-gray-700 via-gray-600 to-gray-700;
+  }
+
+  @keyframes loading-shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  /* 专注模式（全屏冥想时使用） */
+  .focus-mode {
+    @apply fixed inset-0 z-50 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900;
+  }
+
+  .focus-mode::before {
+    content: '';
+    @apply absolute inset-0 opacity-30;
+    background-image: 
+      radial-gradient(circle at 20% 20%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 40% 70%, rgba(139, 92, 246, 0.3) 0%, transparent 50%);
+  }
+
+  /* 通知样式 */
+  .notification-gradient {
+    @apply bg-gradient-to-r from-blue-500 to-purple-600 text-white;
+  }
+
+  .notification-success {
+    @apply bg-gradient-to-r from-green-500 to-emerald-600 text-white;
+  }
+
+  .notification-warning {
+    @apply bg-gradient-to-r from-yellow-500 to-orange-600 text-white;
+  }
+
+  .notification-error {
+    @apply bg-gradient-to-r from-red-500 to-pink-600 text-white;
+  }
+
+  /* 个人化主题变量 */
+  .theme-fire {
+    --primary-hue: 0;
+    --secondary-hue: 30;
+  }
+
+  .theme-water {
+    --primary-hue: 200;
+    --secondary-hue: 240;
+  }
+
+  .theme-earth {
+    --primary-hue: 120;
+    --secondary-hue: 90;
+  }
+
+  .theme-air {
+    --primary-hue: 60;
+    --secondary-hue: 45;
+  }
+
+  .theme-ether {
+    --primary-hue: 270;
+    --secondary-hue: 300;
+  }
+}
+
+/* 自定义滚动条 */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-crystal {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
+  }
+
+  .scrollbar-crystal::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .scrollbar-crystal::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-crystal::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.3);
+    border-radius: 4px;
+  }
+
+  .scrollbar-crystal::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.5);
+  }
+}
+
+/* 打印样式 */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-only {
+    display: block !important;
+  }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  .gradient-text {
+    @apply text-foreground;
+  }
+  
+  .halo-effect {
+    filter: none;
+  }
+}
+
+/* 减少动画偏好支持 */
+@media (prefers-reduced-motion: reduce) {
+  .energy-indicator::before,
+  .crystal-shimmer::before,
+  .energy-flow::after {
+    animation: none;
+  }
+}
+
+/* 特殊字体支持 */
+@layer base {
+  .font-headline {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+
+  .font-body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+}

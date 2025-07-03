@@ -1,0 +1,18 @@
+
+Oops! Something went wrong! :(
+
+ESLint: 9.30.0
+
+Error: Failed to patch ESLint because the calling module was not recognized.
+If you are using a newer ESLint version that may be unsupported, please create a GitHub issue:
+https://github.com/microsoft/rushstack/issues
+    at Object.<anonymous> (/Users/lengmeihuizi/Desktop/projacket/水晶日历/node_modules/@rushstack/eslint-patch/lib/_patch-base.js:244:19)
+    at Module._compile (node:internal/modules/cjs/loader:1376:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1435:10)
+    at Module.load (node:internal/modules/cjs/loader:1207:32)
+    at Module._load (node:internal/modules/cjs/loader:1023:12)
+    at Module.require (node:internal/modules/cjs/loader:1235:19)
+    at require (node:internal/modules/helpers:176:18)
+    at Object.<anonymous> (/Users/lengmeihuizi/Desktop/projacket/水晶日历/node_modules/@rushstack/eslint-patch/lib/modern-module-resolution.js:11:23)
+    at Module._compile (node:internal/modules/cjs/loader:1376:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1435:10)
