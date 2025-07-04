@@ -9,7 +9,7 @@
 import { pollinationsRefineImage } from '@/ai/pollinations';
 import type { RefineImageInput as RawRefineImageInput, RefineImageOutput } from '../schemas/refine-image-schemas';
 
-export type RefineImageInput = RawRefineImageInput & { model?: string };
+export type RefineImageInput = RawRefineImageInput;
 
 function getRefineImageModel(overrideModel?: string) {
   if (overrideModel) return overrideModel;
@@ -20,9 +20,8 @@ function getRefineImageModel(overrideModel?: string) {
   return 'flux';
 }
 
-export async function refineImage(input: RefineImageInput, modelOverride?: string): Promise<RefineImageOutput> {
-  const model = getRefineImageModel(modelOverride);
-  return pollinationsRefineImage({ ...input, model });
+export async function refineImage(input: RefineImageInput): Promise<RefineImageOutput> {
+  return pollinationsRefineImage(input);
 }
 
 export default refineImage;

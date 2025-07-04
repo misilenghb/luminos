@@ -480,5 +480,38 @@ Important:
   }
 }
 
+// 灵感图片分析
+export async function pollinationsAnalyzeInspiration(input: AnalyzeInspirationImageInput & { model?: string }): Promise<AnalyzeInspirationImageOutput> {
+  // 构造 prompt，使用 photoDataUri 字段
+  const prompt = `You are a professional crystal jewelry designer. Analyze the following inspiration image (base64 data URI) and generate a detailed English prompt for a new jewelry design.\n\nPhoto Data URI: ${input.photoDataUri}`;
+  try {
+    const response = await fetch('https://text.pollinations.ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: prompt }],
+        model: input.model || getTextModel(),
+        temperature: 0.7
+      })
+    });
+    if (!response.ok) {
+      throw new Error(`API请求失败: ${response.status} ${response.statusText}`);
+    }
+    const text = await response.text();
+    // 尝试解析JSON
+    let parsed: AnalyzeInspirationImageOutput;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      // 降级处理
+      parsed = { prompt: text } as AnalyzeInspirationImageOutput;
+    }
+    return parsed;
+  } catch (error) {
+    console.error('Pollinations灵感分析API错误:', error);
+    throw new Error(`灵感分析失败: ${error instanceof Error ? error.message : '未知错误'}`);
+  }
+}
+
 // 导出配额管理器和工具函数供其他模块使用
 export { quotaManager, withRetry }; 

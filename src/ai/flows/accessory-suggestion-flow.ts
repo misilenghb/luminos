@@ -10,18 +10,13 @@ import { z } from 'zod';
 import { pollinationsAccessorySuggestions } from '../pollinations';
 
 const AccessorySuggestionInputSchema = z.object({
-  style: z.string().describe('The design style for which to suggest accessories (e.g., "Bohemian", "Gothic").'),
+  designCategory: z.string().describe('The design style for which to suggest accessories (e.g., "Bohemian", "Gothic").'),
   category: z.string().optional().describe('The design category (e.g., "bracelet", "necklace").'),
-  mainStones: z.array(z.object({
-    type: z.string().describe('Crystal type'),
-    color: z.string().optional().describe('Crystal color'),
-    shape: z.string().optional().describe('Crystal shape')
-  })).optional().describe('Main stones in the design'),
+  mainStones: z.string().describe('Main stones in the design'),
   colorSystem: z.string().optional().describe('Main color system'),
   userIntent: z.string().optional().describe('User intent for the jewelry'),
   structure: z.string().optional().describe('Overall structure of the design'),
   language: z.enum(['en', 'zh']).optional().describe('The language for the suggestions.'),
-  model: z.string().optional().describe('AI模型名称'),
 });
 export type AccessorySuggestionInput = z.infer<typeof AccessorySuggestionInputSchema>;
 
@@ -40,8 +35,10 @@ function getAccessoryModel(overrideModel?: string) {
   return 'openai';
 }
 
-export async function suggestAccessories(input: AccessorySuggestionInput, modelOverride?: string): Promise<AccessorySuggestionOutput> {
-  const model = getAccessoryModel(modelOverride);
-  // 这里假设pollinationsAccessorySuggestions支持传入模型参数，如不支持请补充
-  return await pollinationsAccessorySuggestions({ ...input, model });
+export async function suggestAccessories(input: AccessorySuggestionInput): Promise<AccessorySuggestionOutput> {
+  const safeInput = {
+    ...input,
+    userIntent: input.userIntent ?? '',
+  };
+  return await pollinationsAccessorySuggestions(safeInput);
 }

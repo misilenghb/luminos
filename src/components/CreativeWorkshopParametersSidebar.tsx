@@ -58,11 +58,11 @@ const mainStoneSchema = z.object({
 const compositionalAestheticsSchema = z.object({
   style: z.string().optional(),
   overallStructure: z.string().optional(),
-});
+}).optional();
 
 const colorSystemSchema = z.object({
   mainHue: z.string().optional(),
-});
+}).optional();
 
 const designStateSchema = z.object({
   designCategory: z.string().min(1),
@@ -95,6 +95,21 @@ const CreativeWorkshopParametersSidebar: React.FC<CreativeWorkshopParametersSide
     label: getCrystalDisplayName(key as keyof typeof allCrystalData)
   }));
 
+  const safeDesignInput: DesignStateInput = {
+    ...designInput,
+    designCategory: designInput.designCategory ?? '',
+    overallDesignStyle: designInput.overallDesignStyle ?? '',
+    mainStones: Array.isArray(designInput.mainStones)
+      ? designInput.mainStones.map(stone => ({
+          ...stone,
+          id: stone.id ?? '',
+          crystalType: stone.crystalType ?? '',
+          color: stone.color ?? '',
+        }))
+      : [],
+    colorSystem: designInput.colorSystem ?? { mainHue: '' },
+    compositionalAesthetics: designInput.compositionalAesthetics ?? { style: '', overallStructure: '' },
+  };
   const {
     control,
     handleSubmit,
@@ -105,7 +120,7 @@ const CreativeWorkshopParametersSidebar: React.FC<CreativeWorkshopParametersSide
     formState: { errors },
   } = useForm<DesignStateInput>({
     resolver: zodResolver(designStateSchema),
-    defaultValues: designInput,
+    defaultValues: safeDesignInput,
   });
   
   const { fields, append, remove } = useFieldArray({
@@ -116,16 +131,32 @@ const CreativeWorkshopParametersSidebar: React.FC<CreativeWorkshopParametersSide
   const watchedForm = useWatch({ control });
 
   useEffect(() => {
-    const currentFormValues = JSON.stringify(watchedForm);
-    const currentContextValues = JSON.stringify(designInput);
+    // 保证 watchedForm 结构完整
+    const safeWatchedForm: DesignStateInput = {
+      ...watchedForm,
+      designCategory: watchedForm.designCategory ?? '',
+      overallDesignStyle: watchedForm.overallDesignStyle ?? '',
+      mainStones: Array.isArray(watchedForm.mainStones)
+        ? watchedForm.mainStones.map(stone => ({
+            ...stone,
+            id: stone.id ?? '',
+            crystalType: stone.crystalType ?? '',
+            color: stone.color ?? '',
+          }))
+        : [],
+      colorSystem: watchedForm.colorSystem ?? { mainHue: '' },
+      compositionalAesthetics: watchedForm.compositionalAesthetics ?? { style: '', overallStructure: '' },
+    };
+    const currentFormValues = JSON.stringify(safeWatchedForm);
+    const currentContextValues = JSON.stringify(safeDesignInput);
     if (currentFormValues !== currentContextValues) {
-        setDesignInput(watchedForm);
+        setDesignInput(safeWatchedForm);
     }
-  }, [watchedForm, designInput, setDesignInput]);
+  }, [watchedForm, safeDesignInput, setDesignInput]);
   
   useEffect(() => {
-    reset(designInput);
-  }, [designInput, reset]);
+    reset(safeDesignInput);
+  }, [safeDesignInput, reset]);
 
   const watchedMainStones = useWatch({ control, name: "mainStones" });
   const watchedDesignCategory = useWatch({ control, name: "designCategory" });
@@ -203,15 +234,15 @@ const CreativeWorkshopParametersSidebar: React.FC<CreativeWorkshopParametersSide
     try {
       // 构建完整的设计上下文
       const designContext = {
-        style: overallDesignStyle,
+        designCategory: overallDesignStyle,
         category: designCategory,
-        mainStones: mainStones.filter(stone => stone.crystalType).map(stone => ({
+        mainStones: JSON.stringify(mainStones.filter(stone => stone.crystalType).map(stone => ({
           type: stone.crystalType,
           color: stone.color,
           shape: stone.shape
-        })),
+        }))),
         colorSystem: colorSystem?.mainHue,
-        userIntent: userIntent,
+        userIntent: userIntent ?? '',
         structure: compositionalAesthetics?.overallStructure,
         language
       };
@@ -268,7 +299,7 @@ const CreativeWorkshopParametersSidebar: React.FC<CreativeWorkshopParametersSide
       </div>
       
       <ScrollArea className="flex-1 px-4">
-        <form onSubmit={handleSubmit(handleGenerate)} className="space-y-6 py-4">
+        <form onSubmit={handleSubmit(handleGenerate as any)} className="space-y-6 py-4">
           
           {/* 基础设置 */}
           <Card>
@@ -658,7 +689,7 @@ const CreativeWorkshopParametersSidebar: React.FC<CreativeWorkshopParametersSide
       {/* 底部生成按钮 */}
       <div className="p-4 border-t">
         <Button 
-          onClick={handleSubmit(handleGenerate)} 
+          onClick={handleSubmit(handleGenerate as any)} 
           disabled={isSubmitting} 
           className="w-full"
         >

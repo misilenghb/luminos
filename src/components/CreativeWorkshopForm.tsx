@@ -107,10 +107,24 @@ const CreativeWorkshopForm: React.FC<CreativeWorkshopFormProps> = ({ onGenerateS
   const watchedForm = useWatch({ control });
 
   useEffect(() => {
-    const currentFormValues = JSON.stringify(watchedForm);
+    // 保证 designCategory、overallDesignStyle、mainStones 不为 undefined
+    const safeWatchedForm = {
+      ...watchedForm,
+      designCategory: watchedForm.designCategory ?? '',
+      overallDesignStyle: watchedForm.overallDesignStyle ?? '',
+      mainStones: Array.isArray(watchedForm.mainStones)
+        ? watchedForm.mainStones.map(stone => ({
+            ...stone,
+            id: stone.id ?? '',
+            crystalType: stone.crystalType ?? '',
+            color: stone.color ?? '',
+          }))
+        : [],
+    };
+    const currentFormValues = JSON.stringify(safeWatchedForm);
     const currentContextValues = JSON.stringify(designInput);
     if (currentFormValues !== currentContextValues) {
-        setDesignInput(watchedForm);
+        setDesignInput(safeWatchedForm);
     }
   }, [watchedForm, designInput, setDesignInput]);
   
@@ -194,15 +208,15 @@ const CreativeWorkshopForm: React.FC<CreativeWorkshopFormProps> = ({ onGenerateS
     try {
       // 构建完整的设计上下文
       const designContext = {
-        style: overallDesignStyle!,
+        designCategory: overallDesignStyle!,
         category: designCategory,
-        mainStones: mainStones.filter(stone => stone.crystalType).map(stone => ({
+        mainStones: JSON.stringify(mainStones.filter(stone => stone.crystalType).map(stone => ({
           type: stone.crystalType,
           color: stone.color || '',
           shape: stone.shape
-        })),
+        }))),
         colorSystem: colorSystem?.mainHue,
-        userIntent: userIntent,
+        userIntent: userIntent ?? '',
         structure: compositionalAesthetics?.overallStructure,
         language
       };

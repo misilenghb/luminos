@@ -522,7 +522,7 @@ SELECT 'PLEASE_EXECUTE_COMPLETE_SCRIPT' as status,
                   数据库关联关系
                 </span>
                 <span className="text-sm font-normal text-gray-500">
-                  健康度: {relationshipReport.summary.healthScore}%
+                  健康度: {relationshipReport.summary?.healthScore ?? 0}%
                 </span>
               </CardTitle>
             </CardHeader>
@@ -532,41 +532,41 @@ SELECT 'PLEASE_EXECUTE_COMPLETE_SCRIPT' as status,
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm font-medium">关联完整度</span>
                     <span className="text-sm text-gray-500">
-                      {relationshipReport.summary.existing}/{relationshipReport.summary.total} 已建立
+                      {relationshipReport.summary?.existing ?? 0}/{relationshipReport.summary?.total ?? 0} 已建立
                     </span>
                   </div>
-                  <Progress value={relationshipReport.summary.healthScore} className="h-2" />
+                  <Progress value={relationshipReport.summary?.healthScore ?? 0} className="h-2" />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="text-center p-4 border rounded-lg">
                     <div className="text-2xl font-bold text-green-600">
-                      {relationshipReport.summary.existing}
+                      {relationshipReport.summary?.existing ?? 0}
                     </div>
                     <div className="text-sm text-gray-500">已建立关联</div>
                   </div>
                   
                   <div className="text-center p-4 border rounded-lg">
                     <div className="text-2xl font-bold text-red-600">
-                      {relationshipReport.summary.missing}
+                      {relationshipReport.summary?.missing ?? 0}
                     </div>
                     <div className="text-sm text-gray-500">缺失关联</div>
                   </div>
                   
                   <div className="text-center p-4 border rounded-lg">
                     <div className="text-2xl font-bold text-blue-600">
-                      {relationshipReport.summary.total}
+                      {relationshipReport.summary?.total ?? 0}
                     </div>
                     <div className="text-sm text-gray-500">总关联数</div>
                   </div>
                 </div>
 
-                {relationshipReport.summary.missing > 0 && (
+                {relationshipReport.summary?.missing > 0 && (
                   <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
                     <div className="flex items-center gap-2 text-orange-800">
                       <AlertTriangle className="w-4 h-4" />
                       <span className="text-sm font-medium">
-                        发现 {relationshipReport.summary.missing} 个缺失的关联关系
+                        发现 {relationshipReport.summary?.missing ?? 0} 个缺失的关联关系
                       </span>
                     </div>
                     <p className="text-sm text-orange-700 mt-1">
