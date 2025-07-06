@@ -22,8 +22,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useLanguage } from "@/contexts/LanguageContext";
 import { analyzeUserProfile } from "@/ai/flows/user-profile-flow";
 import type { FullQuestionnaireDataInput, UserProfileDataOutput as UserProfileData } from "@/ai/schemas/user-profile-schemas";
-import type { StepConfig, QuestionnaireFormValues, ChakraQuestionnaireAnswers, MBTILikeAssessmentAnswers as MbtiRawAnswers } from "@/types/questionnaire";
-import { useToast } from "@/hooks/use-toast";
+import type { StepConfig, QuestionnaireFormValues, ChakraQuestionnaireAnswers, MbtiQuestionnaireAnswers } from "@/types/questionnaire";
+import type { MBTILikeAssessmentAnswers as MbtiRawAnswers } from "@/types/questionnaire";
 import { calculateMbtiType, areMbtiAnswersComplete, type MbtiDimensionAnswers } from "@/lib/mbti-utils";
 import { calculateChakraScores, areChakraAnswersComplete } from "@/lib/chakra-utils";
 import { CalendarIcon, User, Palette as PaletteIcon, TrendingUp, ChevronLeft, ChevronRight, Sparkles as ChakraIconUi, Target as GoalIcon, ListChecks, RotateCcw } from "lucide-react";
@@ -31,6 +31,7 @@ import InstantFeedback from './InstantFeedback';
 import EnhancedQuestionnaire from './EnhancedQuestionnaire';
 import { format, parse, isValid as isValidDate } from 'date-fns';
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from '@/hooks/use-toast';
 
 // Schemas for individual step validation
 const basicInfoSchema = z.object({
@@ -79,6 +80,8 @@ const currentStatusSchema = z.object({
   stressLevel: z.number().min(1).max(5),
   energyLevel: z.number().min(1).max(5),
   emotionalState: z.string().min(1, "energyExplorationPage.questionnaire.validation.emotionalStateRequired").max(500, "energyExplorationPage.questionnaire.validation.emotionalStateMax"),
+  sleepQuality: z.number().min(1).max(5),
+  physicalConditions: z.array(z.string()),
 });
 
 
@@ -208,16 +211,21 @@ const PersonalizedQuestionnaire: React.FC<PersonalizedQuestionnaireProps> = ({ s
   const [showEnhancedQuestionnaire, setShowEnhancedQuestionnaire] = useState(false);
   const [formDataSnapshot, setFormDataSnapshot] = useState<Partial<QuestionnaireFormValues>>({});
 
-  const defaultChakraAnswers: Record<keyof ChakraQuestionnaireAnswers, [number|undefined, number|undefined, number|undefined, number|undefined]> = chakraKeys.reduce((acc, key) => {
-    acc[key] = [undefined, undefined, undefined, undefined];
-    return acc;
-  }, {} as Record<keyof ChakraQuestionnaireAnswers, [number|undefined, number|undefined, number|undefined, number|undefined]>);
+  const defaultChakraAnswers: ChakraQuestionnaireAnswers = {
+    root: [0, 0, 0, 0],
+    sacral: [0, 0, 0, 0],
+    solarPlexus: [0, 0, 0, 0],
+    heart: [0, 0, 0, 0],
+    throat: [0, 0, 0, 0],
+    thirdEye: [0, 0, 0, 0],
+    crown: [0, 0, 0, 0],
+  };
 
-  const defaultMbtiAnswers: MbtiRawAnswers = {
-    eiAnswers: Array(7).fill(undefined) as MbtiDimensionAnswers,
-    snAnswers: Array(7).fill(undefined) as MbtiDimensionAnswers,
-    tfAnswers: Array(7).fill(undefined) as MbtiDimensionAnswers,
-    jpAnswers: Array(7).fill(undefined) as MbtiDimensionAnswers,
+  const defaultMbtiAnswers: MbtiQuestionnaireAnswers = {
+    eiAnswers: [undefined, undefined, undefined, undefined, undefined, undefined, undefined],
+    snAnswers: [undefined, undefined, undefined, undefined, undefined, undefined, undefined],
+    tfAnswers: [undefined, undefined, undefined, undefined, undefined, undefined, undefined],
+    jpAnswers: [undefined, undefined, undefined, undefined, undefined, undefined, undefined],
   };
 
 
@@ -247,6 +255,8 @@ const PersonalizedQuestionnaire: React.FC<PersonalizedQuestionnaireProps> = ({ s
       stressLevel: 3,
       energyLevel: 3,
       emotionalState: "",
+      sleepQuality: 3,
+      physicalConditions: [],
     },
   } as QuestionnaireFormValues;
 
@@ -377,7 +387,7 @@ const PersonalizedQuestionnaire: React.FC<PersonalizedQuestionnaireProps> = ({ s
         if (currentStepData.id === "chakraAnswers") {
             isSectionActuallyComplete = areChakraAnswersComplete(currentValues as ChakraQuestionnaireAnswers | undefined);
         } else if (currentStepData.id === "mbtiAnswers") {
-            isSectionActuallyComplete = areMbtiAnswersComplete(currentValues as MbtiRawAnswers | undefined);
+            isSectionActuallyComplete = areMbtiAnswersComplete(currentValues as MbtiQuestionnaireAnswers | undefined);
         }
 
         if (!isSectionActuallyComplete) {
@@ -475,7 +485,7 @@ const PersonalizedQuestionnaire: React.FC<PersonalizedQuestionnaireProps> = ({ s
     try {
       const aiInput: FullQuestionnaireDataInput = {
         basicInfo: data.basicInfo,
-        mbtiAnswers: data.mbtiAnswers && areMbtiAnswersComplete(data.mbtiAnswers) ? data.mbtiAnswers : undefined,
+        mbtiAnswers: (data.mbtiAnswers && areMbtiAnswersComplete(data.mbtiAnswers) ? data.mbtiAnswers : undefined) as any,
         calculatedMbtiType: finalMbtiResult?.type,
         chakraAssessment: finalChakraScores,
         lifestylePreferences: data.lifestylePreferences,
@@ -535,6 +545,29 @@ const PersonalizedQuestionnaire: React.FC<PersonalizedQuestionnaireProps> = ({ s
             });
           } else {
             console.error('❌ 保存用户画像失败: 未返回数据');
+            // 尝试修复数据库问题
+            try {
+              const response = await fetch('/api/database-migration');
+              const result = await response.json();
+              
+              if (result.success) {
+                console.log('✅ 数据库修复成功，正在重试保存...');
+                // 重试保存
+                const retryProfile = await profileService.upsertUserProfile(profileData);
+                if (retryProfile) {
+                  console.log('✅ 重试保存成功:', retryProfile);
+                  shouldClearLocalStorage = true;
+                  toast({
+                    title: t('toasts.profileSavedSuccessTitle'),
+                    description: t('toasts.profileSavedSuccessDesc'),
+                  });
+                  return;
+                }
+              }
+            } catch (fixError) {
+              console.error('❌ 数据库修复失败:', fixError);
+            }
+            
             throw new Error('Failed to save profile to database');
           }
         } catch (saveError) {

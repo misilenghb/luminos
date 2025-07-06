@@ -1,129 +1,80 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
 export async function POST(request: NextRequest) {
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          const cookie = cookieStore.get(name);
+          return cookie?.value;
+        },
+        async set(name: string, value: string, options: CookieOptions) {
+          await cookieStore.set({ name, value, ...options });
+        },
+        async remove(name: string, options: CookieOptions) {
+          await cookieStore.set({ name, value: '', ...options });
+        },
+      },
+    }
+  );
+
   try {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
+      return NextResponse.json({ error: '未授权' }, { status: 401 });
+    }
+
     const body = await request.json();
     
     const {
-      userId,
-      userEmail,
       title,
       description,
-      prompt,
-      imageUrl,
-      thumbnailUrl,
+      mainStone,
+      auxiliaryStones,
       style,
-      category,
-      crystalsUsed,
-      colors,
-      tags,
-      generationParams,
-      aiAnalysis
+      occasion,
+      preferences,
+      imageUrl,
+      aiAnalysis,
+      isPublic = false // 默认不公开
     } = body;
 
-    // 验证必需字段
-    if (!userId && !userEmail) {
-      return NextResponse.json(
-        { error: '用户ID或邮箱是必需的' },
-        { status: 400 }
-      );
-    }
+    const finalUserId = session.user.id;
 
-    if (!imageUrl) {
-      return NextResponse.json(
-        { error: '图片URL是必需的' },
-        { status: 400 }
-      );
-    }
-
-    // 如果只有邮箱，先获取用户档案
-    let finalUserId = userId;
-    let profileId = null;
-
-    if (!userId && userEmail) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('id, user_id')
-        .eq('email', userEmail)
-        .single();
-      
-      if (profile) {
-        finalUserId = profile.user_id || profile.id;
-        profileId = profile.id;
-      }
-    }
-
-    if (!finalUserId) {
-      return NextResponse.json(
-        { error: '无法找到有效的用户ID' },
-        { status: 400 }
-      );
-    }
-
-    // 获取profile_id（如果还没有的话）
-    if (!profileId) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', finalUserId)
-        .single();
-      
-      if (profile) {
-        profileId = profile.id;
-      }
-    }
-
-    // 准备要保存的数据
-    const designData = {
-      user_id: finalUserId,
-      profile_id: profileId,
-      title: title || '简易设计作品',
-      description,
-      prompt,
-      image_url: imageUrl,
-      thumbnail_url: thumbnailUrl,
-      style: style || 'simple',
-      category: category || 'jewelry',
-      crystals_used: crystalsUsed || [],
-      colors: colors || [],
-      tags: tags || [],
-      is_favorite: false,
-      is_public: false,
-      view_count: 0,
-      like_count: 0,
-      share_count: 0,
-      generation_params: generationParams || {},
-      ai_analysis: aiAnalysis || {}
-    };
-
-    // 保存到数据库
+    // 保存设计到数据库
     const { data, error } = await supabase
       .from('design_works')
-      .insert(designData)
-      .select()
-      .single();
+      .insert([
+        {
+          user_id: finalUserId,
+          title,
+          description: JSON.stringify(description),
+          main_stone: mainStone,
+          auxiliary_stones: JSON.stringify(auxiliaryStones),
+          style,
+          occasion,
+          preferences: JSON.stringify(preferences),
+          image_url: imageUrl,
+          ai_analysis: aiAnalysis,
+          is_public: isPublic // 添加is_public字段
+        }
+      ])
+      .select();
 
     if (error) {
       console.error('保存设计作品失败:', error);
-      return NextResponse.json(
-        { error: '保存设计作品失败', details: error.message },
-        { status: 500 }
-      );
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 
-    // 返回成功结果
-    return NextResponse.json({
-      success: true,
-      message: '设计作品已成功保存',
-      design: data
-    });
-
-  } catch (error) {
-    console.error('保存设计作品API错误:', error);
-    return NextResponse.json(
-      { error: '服务器内部错误', details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: true, data });
+  } catch (error: any) {
+    console.error('处理请求时出错:', error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 } 

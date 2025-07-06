@@ -94,14 +94,49 @@ const GeneratedSuggestions: React.FC<GeneratedSuggestionsProps> = ({ suggestions
   const [isSaving, setIsSaving] = useState(false);
   const [savedDesigns, setSavedDesigns] = useState<Set<number>>(new Set());
 
-  const handleCopyPrompt = (prompt: string) => {
-    navigator.clipboard.writeText(prompt);
-    setCopiedPrompt(prompt);
-    toast({
-      title: t('toasts.promptCopiedTitle'),
-      description: t('toasts.promptCopiedDesc'),
-    });
-    setTimeout(() => setCopiedPrompt(null), 2000);
+  const handleCopyPrompt = async (prompt: string) => {
+    // 优先使用 Clipboard API
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(prompt);
+        setCopiedPrompt(prompt);
+        toast({
+          title: t('toasts.promptCopiedTitle'),
+          description: t('toasts.promptCopiedDesc'),
+        });
+        setTimeout(() => setCopiedPrompt(null), 2000);
+        return;
+      } catch (error) {
+        console.error('使用 Clipboard API 复制失败, 尝试备用方法:', error);
+      }
+    }
+
+    // 备用复制方法
+    const textarea = document.createElement('textarea');
+    textarea.value = prompt;
+    textarea.style.position = 'fixed'; // 避免页面滚动
+    textarea.style.top = '-9999px';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      setCopiedPrompt(prompt);
+      toast({
+        title: t('toasts.promptCopiedTitle'),
+        description: t('toasts.promptCopiedDesc'),
+      });
+      setTimeout(() => setCopiedPrompt(null), 2000);
+    } catch (err) {
+      console.error('备用复制方法失败:', err);
+      toast({
+        variant: "destructive",
+        title: t('toasts.promptCopyErrorTitle'),
+        description: t('toasts.promptCopyErrorDesc'),
+      });
+    } finally {
+      document.body.removeChild(textarea);
+    }
   };
 
   const handleSaveDesign = async (schemeIndex: number, scheme: any) => {
@@ -127,7 +162,6 @@ const GeneratedSuggestions: React.FC<GeneratedSuggestionsProps> = ({ suggestions
     try {
       // 准备保存的数据
       const saveData = {
-        userEmail: user.email,
         title: scheme.schemeTitle || `简易设计方案 ${schemeIndex + 1}`,
         description: [
           scheme.mainStoneDescription,
@@ -157,7 +191,8 @@ const GeneratedSuggestions: React.FC<GeneratedSuggestionsProps> = ({ suggestions
           conceptDescription: suggestions?.designConcept,
           personalizedIntro: suggestions?.personalizedIntroduction,
           concludingRemarks: suggestions?.concludingRemarks
-        }
+        },
+        isPublic: false // 默认不公开设计
       };
 
       const response = await fetch('/api/save-design', {

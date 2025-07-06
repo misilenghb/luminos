@@ -40,6 +40,9 @@ export default function EnergyExplorationPageContent() {
   const [isEnhancedMode, setIsEnhancedMode] = useState(false);
   const [enhancedData, setEnhancedData] = useState<any>(null);
   const [hasCompletedBasic, setHasCompletedBasic] = useState(false);
+  const [showEnhancedQuestionnaire, setShowEnhancedQuestionnaire] = useState(false);
+  const [isAnalyzingEnhancedData, setIsAnalyzingEnhancedData] = useState(false);
+  const [hasCompletedEnhancedAssessment, setHasCompletedEnhancedAssessment] = useState(false);
 
   // 添加重新测试确认的状态
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
@@ -151,6 +154,20 @@ export default function EnergyExplorationPageContent() {
     checkDataAndLoadProfile();
   }, [isAuthenticated, user, userProfile, isAnalyzingProfile, hasUnsubmittedData]);
 
+  // 从本地存储加载增强评估数据
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem('enhanced_assessment_data');
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        setEnhancedData(parsedData);
+        console.log('✅ 已从本地存储加载增强评估数据');
+      }
+    } catch (error) {
+      console.error('❌ 加载本地存储数据失败:', error);
+    }
+  }, []);
+
   // 处理基础评估完成事件
   const handleBasicProfileComplete = (profileData: UserProfileData | null) => {
     if (!profileData) return; // 如果是null就直接返回
@@ -175,14 +192,29 @@ export default function EnergyExplorationPageContent() {
   };
 
   // 处理增强评估完成
-  const handleEnhancedComplete = (data: any) => {
+  const handleEnhancedAssessmentComplete = async (data: any) => {
+    console.log('✅ 增强评估完成:', data);
     setEnhancedData(data);
-    setIsEnhancedMode(false);
+    setShowEnhancedQuestionnaire(false);
+    setIsAnalyzingEnhancedData(true);
     
-    // 如果用户已登录，保存增强评估数据到数据库
-    if (isAuthenticated && user && user.email) {
-      saveEnhancedDataToDatabase(data);
+    // 保存到数据库
+    await saveEnhancedDataToDatabase(data);
+    
+    // 清除本地存储的增强问卷数据
+    try {
+      localStorage.removeItem('enhanced_questionnaire_data');
+      console.log('✅ 已清除本地存储的增强问卷数据');
+    } catch (error) {
+      console.error('❌ 清除本地存储数据失败:', error);
     }
+    
+    // 分析增强数据
+    setTimeout(() => {
+      setIsAnalyzingEnhancedData(false);
+      setHasCompletedEnhancedAssessment(true);
+      setActiveTab('results');
+    }, 2000);
   };
 
   // 保存增强评估数据到数据库
@@ -190,8 +222,29 @@ export default function EnergyExplorationPageContent() {
     try {
       console.log('🔄 开始保存增强评估数据...');
       
+      // 先保存到本地存储作为备份
+      try {
+        localStorage.setItem('enhanced_assessment_data', JSON.stringify(data));
+        console.log('✅ 增强评估数据已保存到本地存储');
+      } catch (localError) {
+        console.error('❌ 保存到本地存储失败:', localError);
+      }
+      
       if (!user?.email) {
         console.error('❌ 用户邮箱不存在，无法保存增强评估数据');
+        return;
+      }
+      
+      // 先测试数据库字段是否存在且可以更新
+      const { testEnhancedAssessmentSaving } = await import('@/lib/database-fix');
+      const testResult = await testEnhancedAssessmentSaving(user.email);
+      
+      if (!testResult.success) {
+        console.error('❌ 数据库字段测试失败:', testResult.message);
+        
+        // 显示用户友好的错误提示
+        alert(`⚠️ ${testResult.message}\n\n数据已临时保存在本地，您可以：\n1. 刷新页面重新尝试\n2. 稍后再次提交\n3. 联系技术支持获取帮助`);
+        
         return;
       }
       
@@ -284,6 +337,9 @@ export default function EnergyExplorationPageContent() {
         error: error,
         userEmail: user?.email || '邮箱不存在'
       });
+      
+      // 显示用户友好的错误提示
+      alert(`⚠️ 保存增强评估数据时发生错误\n\n数据已临时保存在本地，您可以：\n1. 刷新页面重新尝试\n2. 稍后再次提交\n3. 联系技术支持获取帮助`);
     }
   };
 
@@ -511,7 +567,7 @@ export default function EnergyExplorationPageContent() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {enhancedData.deepAnalysisResults.map((item, idx) => (
+                        {enhancedData.deepAnalysisResults.map((item: any, idx: number) => (
                           <div key={idx} className="border-b pb-3 mb-3 last:border-b-0 last:pb-0 last:mb-0">
                             <div className="font-semibold text-primary mb-1">{item.area}</div>
                             <div className="text-foreground mb-1">建议：{item.suggestion}</div>
@@ -537,7 +593,7 @@ export default function EnergyExplorationPageContent() {
 
                 {/* 生活场景水晶指导 */}
                 <LifeScenarioGuidance 
-                  userProfile={userProfile}
+                  userProfile={userProfile ?? {} as any}
                   className="mt-6"
                 />
 
@@ -691,7 +747,7 @@ export default function EnergyExplorationPageContent() {
             {isEnhancedMode && !enhancedData && !isAnalyzingProfile && (
               <EnhancedQuestionnaire 
                 basicProfile={userProfile}
-                onComplete={handleEnhancedComplete}
+                onComplete={handleEnhancedAssessmentComplete}
                 onAnalyzing={setIsAnalyzingProfile}
               />
             )}

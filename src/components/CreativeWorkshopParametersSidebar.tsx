@@ -131,7 +131,8 @@ const CreativeWorkshopParametersSidebar: React.FC<CreativeWorkshopParametersSide
   const watchedForm = useWatch({ control });
 
   useEffect(() => {
-    // 保证 watchedForm 结构完整
+    if (!watchedForm) return;
+    
     const safeWatchedForm: DesignStateInput = {
       ...watchedForm,
       designCategory: watchedForm.designCategory ?? '',
@@ -147,16 +148,21 @@ const CreativeWorkshopParametersSidebar: React.FC<CreativeWorkshopParametersSide
       colorSystem: watchedForm.colorSystem ?? { mainHue: '' },
       compositionalAesthetics: watchedForm.compositionalAesthetics ?? { style: '', overallStructure: '' },
     };
-    const currentFormValues = JSON.stringify(safeWatchedForm);
-    const currentContextValues = JSON.stringify(safeDesignInput);
-    if (currentFormValues !== currentContextValues) {
-        setDesignInput(safeWatchedForm);
-    }
-  }, [watchedForm, safeDesignInput, setDesignInput]);
+    
+    const timeoutId = setTimeout(() => {
+      setDesignInput(safeWatchedForm);
+    }, 100);
+    
+    return () => clearTimeout(timeoutId);
+  }, [watchedForm, setDesignInput]);
   
   useEffect(() => {
+    const timeoutId = setTimeout(() => {
     reset(safeDesignInput);
-  }, [safeDesignInput, reset]);
+    }, 50);
+    
+    return () => clearTimeout(timeoutId);
+  }, [reset, safeDesignInput]);
 
   const watchedMainStones = useWatch({ control, name: "mainStones" });
   const watchedDesignCategory = useWatch({ control, name: "designCategory" });

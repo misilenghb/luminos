@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 import type { UserProfileDataOutput } from '@/ai/schemas/user-profile-schemas';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -8,7 +8,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Supabase 环境变量未配置，请检查 .env.local 文件中的 NEXT_PUBLIC_SUPABASE_URL 和 NEXT_PUBLIC_SUPABASE_ANON_KEY');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
 
 // 数据类型定义
 export interface UserProfile {
@@ -452,13 +452,13 @@ export const membershipService = {
 
       console.log('Fetching membership for userId:', userId);
       
-      const { data, error } = await supabase
+    const { data, error } = await supabase
         .from('membership_info')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-      
-      if (error) {
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+    
+    if (error) {
         console.error('Error fetching membership:', {
           error,
           userId,
@@ -485,14 +485,14 @@ export const membershipService = {
 
       console.log('Fetching usage stats for userId:', userId);
       
-      const { data, error } = await supabase
+    const { data, error } = await supabase
         .from('usage_stats')
-        .select('*')
-        .eq('user_id', userId)
-        .order('month', { ascending: false })
-        .limit(months);
-      
-      if (error) {
+      .select('*')
+      .eq('user_id', userId)
+      .order('month', { ascending: false })
+      .limit(months);
+    
+    if (error) {
         console.error('Error fetching usage stats:', {
           error,
           userId,
@@ -517,19 +517,19 @@ export const membershipService = {
         return false;
       }
 
-      const currentMonth = new Date().toISOString().slice(0, 7) + '-01';
+    const currentMonth = new Date().toISOString().slice(0, 7) + '-01';
       
       console.log('Updating usage stats for userId:', userId, 'month:', currentMonth);
-      
-      const { error } = await supabase
+    
+    const { error } = await supabase
         .from('usage_stats')
-        .upsert({
-          user_id: userId,
-          month: currentMonth,
-          ...updates
-        }, { onConflict: 'user_id,month' });
-      
-      if (error) {
+      .upsert({
+        user_id: userId,
+        month: currentMonth,
+        ...updates
+      }, { onConflict: 'user_id,month' });
+    
+    if (error) {
         console.error('Error updating usage stats:', {
           error,
           userId,
@@ -691,4 +691,4 @@ export const testSupabaseConnection = async () => {
     
     return false;
   }
-};
+}; 

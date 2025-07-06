@@ -85,7 +85,7 @@ export function LazyImageLoader({
         height={height}
         quality={quality}
         priority={priority}
-        placeholder={placeholder}
+        placeholder={placeholder === 'blur' || placeholder === 'empty' ? placeholder : undefined}
         blurDataURL={generateBlurDataURL(width, height)}
         onLoad={handleLoad}
         onError={handleError}
@@ -112,7 +112,7 @@ export function useImagePreloader(imageUrls: string[]) {
     const preloadImages = async () => {
       const promises = imageUrls.map((url) => {
         return new Promise<string>((resolve, reject) => {
-          const img = new Image();
+          const img = new window.Image();
           img.onload = () => resolve(url);
           img.onerror = reject;
           img.src = url;

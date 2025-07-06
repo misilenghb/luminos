@@ -35,15 +35,48 @@ export default function PromptBar({
   const [isCopied, setIsCopied] = useState(false);
   const [showPromptPreview, setShowPromptPreview] = useState(false);
 
-  const handleCopy = () => {
-    if (!prompt) return;
-    navigator.clipboard.writeText(prompt);
+  const handleCopyPrompt = async (promptText: string) => {
     setIsCopied(true);
-    toast({
-      title: t('toasts.promptCopiedTitle'),
-      description: t('toasts.promptCopiedDesc'),
-    });
-    setTimeout(() => setIsCopied(false), 2000);
+    // 优先使用 Clipboard API
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(promptText);
+        toast({
+          title: t('toasts.promptCopiedTitle'),
+          description: t('toasts.promptCopiedDesc'),
+        });
+        setTimeout(() => setIsCopied(false), 2000);
+        return;
+      } catch (error) {
+        console.error('使用 Clipboard API 复制失败, 尝试备用方法:', error);
+      }
+    }
+
+    // 备用复制方法
+    const textarea = document.createElement('textarea');
+    textarea.value = promptText;
+    textarea.style.position = 'fixed';
+    textarea.style.top = '-9999px';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      toast({
+        title: t('toasts.promptCopiedTitle'),
+        description: t('toasts.promptCopiedDesc'),
+      });
+    } catch (err) {
+      console.error('备用复制方法失败:', err);
+      toast({
+        variant: "destructive",
+        title: t('toasts.promptCopyErrorTitle'),
+        description: t('toasts.promptCopyErrorDesc'),
+      });
+    } finally {
+      document.body.removeChild(textarea);
+      setTimeout(() => setIsCopied(false), 2000);
+    }
   };
 
   const handleTranslate = async () => {
@@ -135,7 +168,7 @@ export default function PromptBar({
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => handleCopyDefaultPrompt(defaultPrompts.zh)}
+                    onClick={() => handleCopyPrompt(defaultPrompts.zh)}
                   >
                     <Copy className="h-4 w-4 mr-1" />
                     复制
@@ -164,7 +197,7 @@ export default function PromptBar({
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    onClick={() => handleCopyDefaultPrompt(defaultPrompts.en)}
+                    onClick={() => handleCopyPrompt(defaultPrompts.en)}
                   >
                     <Copy className="h-4 w-4 mr-1" />
                     Copy
@@ -196,7 +229,7 @@ export default function PromptBar({
         </DialogContent>
       </Dialog>
       
-      <Button variant="ghost" size="icon" onClick={handleCopy} disabled={!prompt} title={t('promptInputBar.copy')}>
+      <Button variant="ghost" size="icon" onClick={handleCopyPrompt} disabled={!prompt} title={t('promptInputBar.copy')}>
         {isCopied ? <Check className="h-5 w-5 text-green-500" /> : <Copy className="h-5 w-5" />}
       </Button>
       <Button variant="ghost" size="icon" onClick={handleTranslate} disabled={isTranslating || !prompt} title={t('promptInputBar.translate')}>

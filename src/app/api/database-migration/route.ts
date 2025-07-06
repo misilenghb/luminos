@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import DatabaseMigration from '@/lib/database-migrations';
 import DatabaseRelationshipManager from '@/lib/database-relationships';
 import { supabase } from '@/lib/supabase';
+import { fixProfilesRLS, ensureEnhancedAssessmentColumn } from '@/lib/database-fix';
 
 export async function GET() {
   try {
@@ -76,6 +77,34 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error(`❌ 数据库操作失败:`, error);
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : '未知错误'
+    }, { status: 500 });
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    console.log('🚀 开始数据库修复...');
+    
+    // 1. 修复 profiles 表的 RLS 策略
+    const rlsFixed = await fixProfilesRLS();
+    console.log('RLS策略修复结果:', rlsFixed ? '成功' : '失败');
+    
+    // 2. 确保 enhanced_assessment 列存在
+    const columnFixed = await ensureEnhancedAssessmentColumn();
+    console.log('字段检查结果:', columnFixed ? '成功' : '失败');
+    
+    return NextResponse.json({
+      success: true,
+      results: {
+        rls_fixed: rlsFixed,
+        column_fixed: columnFixed
+      }
+    });
+  } catch (error) {
+    console.error('❌ 数据库修复失败:', error);
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : '未知错误'

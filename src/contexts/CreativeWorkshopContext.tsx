@@ -2,6 +2,7 @@
 
 import type React from 'react';
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import type { DesignStateInput } from '@/types/design';
 import { designSuggestions } from '@/ai/flows/design-suggestions';
 import { generateImage } from '@/ai/flows/image-generation-flow';
@@ -13,6 +14,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { compressImage } from '@/lib/image-utils';
 
+// 生成唯一ID的函数
+const generateUniqueId = () => uuidv4();
 
 // State and types
 export interface HistoryItem {
@@ -52,7 +55,7 @@ const defaultDesignInput: DesignStateInput = {
     imageStyle: "style_photo_realistic",
     applicationPlatform: "flux",
     aspectRatio: "ratio_3_4",
-    mainStones: [{ id: crypto.randomUUID(), crystalType: "", shape: "", color: "", inclusions: [] }],
+    mainStones: [{ id: generateUniqueId(), crystalType: "", shape: "", color: "", inclusions: [] }],
     accessories: "",
     compositionalAesthetics: { style: "symmetrical", overallStructure: "single_strand" },
     colorSystem: { mainHue: "cool_tones" },
@@ -108,7 +111,7 @@ export const CreativeWorkshopProvider: React.FC<{ children: ReactNode }> = ({ ch
   const isGenerating = history.some(item => item.isLoading);
 
   const addHistoryItem = useCallback((item: Omit<HistoryItem, 'id'>) => {
-    const newItem = { id: crypto.randomUUID(), ...item };
+    const newItem = { id: generateUniqueId(), ...item };
     setHistory(prev => [...prev, newItem]);
     return newItem;
   }, []);
@@ -188,7 +191,7 @@ export const CreativeWorkshopProvider: React.FC<{ children: ReactNode }> = ({ ch
   const handleSendMessage = useCallback(async (message: string) => {
     if (!message.trim() || isGenerating) return;
 
-    const newUserPromptItem: HistoryItem = { id: crypto.randomUUID(), type: 'user-prompt', content: message };
+    const newUserPromptItem: HistoryItem = { id: generateUniqueId(), type: 'user-prompt', content: message };
     setHistory(prev => [...prev, newUserPromptItem]);
     setPrompt(""); // Clear input after sending
 

@@ -85,36 +85,32 @@ export default function DatabaseDebugPage() {
 
   const testEnhancedAssessmentField = async () => {
     setIsLoading(true);
-    addResult('🧪 测试 enhanced_assessment 字段...');
+    addResult('🧪 测试增强评估字段...');
     
     try {
       const { supabase } = await import('@/lib/supabase');
+      const { testEnhancedAssessmentSaving } = await import('@/lib/database-fix');
       
-      // 尝试查询enhanced_assessment字段
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, email, enhanced_assessment')
-        .eq('email', testEmail)
-        .limit(1);
+      const result = await testEnhancedAssessmentSaving(testEmail);
       
-      if (error) {
-        addResult(`❌ enhanced_assessment字段查询失败: ${error.message}`);
-        
-        if (error.message?.includes('column') && error.message?.includes('enhanced_assessment')) {
-          addResult('📋 enhanced_assessment字段不存在');
-          addResult('💡 请在Supabase控制台执行:');
-          addResult('   ALTER TABLE profiles ADD COLUMN enhanced_assessment JSONB;');
-        }
+      if (result.success) {
+        addResult(`✅ 增强评估字段测试成功: ${result.message}`);
+        addResult(`✓ 字段存在: ${result.hasField}`);
+        addResult(`✓ 可以更新: ${result.canUpdate}`);
       } else {
-        addResult('✅ enhanced_assessment字段存在且可查询');
-        if (data?.[0]?.enhanced_assessment) {
-          addResult('📊 字段已有数据');
-        } else {
-          addResult('📝 字段为空，可以写入数据');
+        addResult(`❌ 增强评估字段测试失败: ${result.message}`);
+        addResult(`✓ 字段存在: ${result.hasField}`);
+        addResult(`✗ 可以更新: ${result.canUpdate}`);
+        
+        if (!result.hasField) {
+          addResult(`
+            📋 需要添加字段，请在SQL编辑器中执行:
+            ALTER TABLE profiles ADD COLUMN enhanced_assessment JSONB DEFAULT '{}';
+          `);
         }
       }
     } catch (error) {
-      addResult(`❌ 字段测试异常: ${error}`);
+      addResult(`❌ 测试增强评估字段异常: ${error}`);
     } finally {
       setIsLoading(false);
     }
@@ -202,6 +198,201 @@ export default function DatabaseDebugPage() {
     }
   };
 
+  const addEnhancedAssessmentColumn = async () => {
+    setIsLoading(true);
+    addResult('🔧 正在添加enhanced_assessment字段到profiles表...');
+    
+    try {
+      const { supabase } = await import('@/lib/supabase');
+      
+      // 执行SQL添加字段
+      const { error } = await supabase.rpc('exec_sql', { 
+        sql: `
+          -- 检查字段是否已存在
+          DO $$
+          BEGIN
+            IF NOT EXISTS (
+              SELECT 1 
+              FROM information_schema.columns 
+              WHERE table_name = 'profiles' 
+              AND column_name = 'enhanced_assessment'
+            ) THEN
+              -- 添加字段
+              ALTER TABLE profiles ADD COLUMN enhanced_assessment JSONB DEFAULT '{}';
+              RAISE NOTICE 'enhanced_assessment字段已添加';
+            ELSE
+              RAISE NOTICE 'enhanced_assessment字段已存在';
+            END IF;
+          END
+          $$;
+        `
+      });
+      
+      if (error) {
+        addResult(`❌ 添加字段失败: ${error.message}`);
+      } else {
+        addResult('✅ enhanced_assessment字段已成功添加或已存在');
+      }
+    } catch (error) {
+      addResult(`❌ 添加字段异常: ${error}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const testLocalStorage = () => {
+    setIsLoading(true);
+    addResult('🧪 测试本地存储功能...');
+    
+    try {
+      // 测试写入
+      const testData = {
+        test: true,
+        timestamp: new Date().toISOString()
+      };
+      
+      localStorage.setItem('debug_test_data', JSON.stringify(testData));
+      addResult('✅ 本地存储写入成功');
+      
+      // 测试读取
+      const readData = localStorage.getItem('debug_test_data');
+      if (readData) {
+        const parsedData = JSON.parse(readData);
+        addResult(`✅ 本地存储读取成功: ${JSON.stringify(parsedData)}`);
+      } else {
+        addResult('❌ 本地存储读取失败: 未找到数据');
+      }
+      
+      // 测试删除
+      localStorage.removeItem('debug_test_data');
+      const checkDeleted = localStorage.getItem('debug_test_data');
+      if (!checkDeleted) {
+        addResult('✅ 本地存储删除成功');
+      } else {
+        addResult('❌ 本地存储删除失败');
+      }
+      
+      // 测试大数据存储
+      try {
+        const largeData = { data: Array(1000).fill('测试数据').join('') };
+        localStorage.setItem('large_test_data', JSON.stringify(largeData));
+        localStorage.removeItem('large_test_data');
+        addResult('✅ 大数据存储测试成功');
+      } catch (error) {
+        addResult(`❌ 大数据存储测试失败: ${error}`);
+      }
+      
+      addResult('✅ 本地存储功能测试完成');
+    } catch (error) {
+      addResult(`❌ 本地存储测试异常: ${error}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const checkQuestionnaireData = () => {
+    setIsLoading(true);
+    addResult('🔍 检查问卷数据保存状态...');
+    
+    try {
+      // 检查基础问卷数据
+      const basicData = localStorage.getItem('questionnaire_form_data');
+      if (basicData) {
+        try {
+          const parsedData = JSON.parse(basicData);
+          addResult('✅ 发现基础问卷数据:');
+          addResult(`📋 数据大小: ${basicData.length} 字节`);
+          addResult(`📋 数据字段: ${Object.keys(parsedData).join(', ')}`);
+        } catch (error) {
+          addResult(`❌ 基础问卷数据解析失败: ${error}`);
+        }
+      } else {
+        addResult('ℹ️ 未找到基础问卷数据');
+      }
+      
+      // 检查增强问卷数据
+      const enhancedQuestionnaireData = localStorage.getItem('enhanced_questionnaire_data');
+      if (enhancedQuestionnaireData) {
+        try {
+          const parsedData = JSON.parse(enhancedQuestionnaireData);
+          addResult('✅ 发现增强问卷数据:');
+          addResult(`📋 数据大小: ${enhancedQuestionnaireData.length} 字节`);
+          addResult(`📋 数据字段: ${Object.keys(parsedData).join(', ')}`);
+        } catch (error) {
+          addResult(`❌ 增强问卷数据解析失败: ${error}`);
+        }
+      } else {
+        addResult('ℹ️ 未找到增强问卷数据');
+      }
+      
+      // 检查增强评估结果数据
+      const enhancedAssessmentData = localStorage.getItem('enhanced_assessment_data');
+      if (enhancedAssessmentData) {
+        try {
+          const parsedData = JSON.parse(enhancedAssessmentData);
+          addResult('✅ 发现增强评估结果数据:');
+          addResult(`📋 数据大小: ${enhancedAssessmentData.length} 字节`);
+          // 如果是对象，显示键名；如果是数组，显示长度
+          if (Array.isArray(parsedData)) {
+            addResult(`📋 数组长度: ${parsedData.length}`);
+          } else {
+            addResult(`📋 数据字段: ${Object.keys(parsedData).join(', ')}`);
+          }
+        } catch (error) {
+          addResult(`❌ 增强评估结果数据解析失败: ${error}`);
+        }
+      } else {
+        addResult('ℹ️ 未找到增强评估结果数据');
+      }
+      
+      addResult('✅ 问卷数据检查完成');
+    } catch (error) {
+      addResult(`❌ 检查问卷数据异常: ${error}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const clearQuestionnaireData = () => {
+    setIsLoading(true);
+    addResult('🧹 开始清除本地问卷数据...');
+    
+    try {
+      // 清除基础问卷数据
+      const basicData = localStorage.getItem('questionnaire_form_data');
+      if (basicData) {
+        localStorage.removeItem('questionnaire_form_data');
+        addResult('✅ 已清除基础问卷数据');
+      } else {
+        addResult('ℹ️ 未找到基础问卷数据');
+      }
+      
+      // 清除增强问卷数据
+      const enhancedQuestionnaireData = localStorage.getItem('enhanced_questionnaire_data');
+      if (enhancedQuestionnaireData) {
+        localStorage.removeItem('enhanced_questionnaire_data');
+        addResult('✅ 已清除增强问卷数据');
+      } else {
+        addResult('ℹ️ 未找到增强问卷数据');
+      }
+      
+      // 清除增强评估结果数据
+      const enhancedAssessmentData = localStorage.getItem('enhanced_assessment_data');
+      if (enhancedAssessmentData) {
+        localStorage.removeItem('enhanced_assessment_data');
+        addResult('✅ 已清除增强评估结果数据');
+      } else {
+        addResult('ℹ️ 未找到增强评估结果数据');
+      }
+      
+      addResult('✅ 所有问卷数据已清除');
+    } catch (error) {
+      addResult(`❌ 清除问卷数据异常: ${error}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const runAllTests = async () => {
     clearResults();
     addResult('🚀 开始运行所有诊断测试...');
@@ -218,7 +409,62 @@ export default function DatabaseDebugPage() {
     await testUpdatePermission();
     await new Promise(resolve => setTimeout(resolve, 500));
     
+    await testLocalStorage();
+    
+    await checkQuestionnaireData();
+    
     addResult('🏁 所有测试完成');
+  };
+
+  const fixDatabaseIssues = async () => {
+    setIsLoading(true);
+    addResult('🔧 开始修复数据库问题...');
+    
+    try {
+      const { 
+        ensureEnhancedAssessmentColumn, 
+        fixProfilesRLS, 
+        fixDesignWorksRLS 
+      } = await import('@/lib/database-fix');
+      
+      // 1. 确保enhanced_assessment字段存在
+      addResult('1️⃣ 检查并添加enhanced_assessment字段...');
+      const columnResult = await ensureEnhancedAssessmentColumn();
+      addResult(columnResult ? '✅ enhanced_assessment字段检查完成' : '❌ enhanced_assessment字段检查失败');
+      
+      // 2. 修复profiles表的RLS策略
+      addResult('2️⃣ 修复profiles表的RLS策略...');
+      const profilesRLSResult = await fixProfilesRLS();
+      addResult(profilesRLSResult ? '✅ profiles表RLS策略修复完成' : '❌ profiles表RLS策略修复失败');
+      
+      // 3. 修复design_works表的RLS策略
+      addResult('3️⃣ 修复design_works表的RLS策略...');
+      const designRLSResult = await fixDesignWorksRLS();
+      addResult(designRLSResult ? '✅ design_works表RLS策略修复完成' : '❌ design_works表RLS策略修复失败');
+      
+      // 4. 测试enhanced_assessment字段
+      addResult('4️⃣ 测试enhanced_assessment字段...');
+      const { testEnhancedAssessmentSaving } = await import('@/lib/database-fix');
+      const testResult = await testEnhancedAssessmentSaving(testEmail);
+      
+      if (testResult.success) {
+        addResult('✅ enhanced_assessment字段测试成功');
+      } else {
+        addResult(`❌ enhanced_assessment字段测试失败: ${testResult.message}`);
+      }
+      
+      // 总结
+      addResult('📋 数据库修复总结:');
+      addResult(`- enhanced_assessment字段: ${columnResult ? '✓' : '✗'}`);
+      addResult(`- profiles表RLS策略: ${profilesRLSResult ? '✓' : '✗'}`);
+      addResult(`- design_works表RLS策略: ${designRLSResult ? '✓' : '✗'}`);
+      addResult(`- 字段测试: ${testResult.success ? '✓' : '✗'}`);
+      
+    } catch (error) {
+      addResult(`❌ 修复数据库异常: ${error}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -265,7 +511,7 @@ export default function DatabaseDebugPage() {
                 variant="outline"
                 className="w-full"
               >
-                🧪 字段测试
+                🧪 测试字段
               </Button>
               
               <Button 
@@ -287,12 +533,57 @@ export default function DatabaseDebugPage() {
               </Button>
               
               <Button 
+                onClick={addEnhancedAssessmentColumn}
+                disabled={isLoading}
+                variant="outline"
+                className="w-full"
+              >
+                🔧 添加字段
+              </Button>
+              
+              <Button 
+                onClick={testLocalStorage}
+                disabled={isLoading}
+                variant="outline"
+                className="w-full"
+              >
+                🧪 测试本地存储
+              </Button>
+              
+              <Button 
+                onClick={checkQuestionnaireData}
+                disabled={isLoading}
+                variant="outline"
+                className="w-full"
+              >
+                🔍 检查问卷数据
+              </Button>
+              
+              <Button 
+                onClick={clearQuestionnaireData}
+                disabled={isLoading}
+                variant="outline"
+                className="w-full"
+              >
+                🧹 清除问卷数据
+              </Button>
+              
+              <Button 
                 onClick={runAllTests}
                 disabled={isLoading}
                 variant="default"
                 className="w-full bg-blue-600 hover:bg-blue-700"
               >
                 🚀 运行所有测试
+              </Button>
+              
+              <Button 
+                onClick={fixDatabaseIssues}
+                disabled={isLoading}
+                variant="default"
+                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+              >
+                🛠️ 全面修复
               </Button>
             </div>
           </CardContent>

@@ -1,0 +1,151 @@
+/* 水晶日历页面样式 */
+
+/* 页面容器 */
+.crystal-calendar-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* 页面标题样式 */
+.crystal-calendar-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  background: linear-gradient(to right, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* 主内容区域 */
+.crystal-calendar-content {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+}
+
+/* 响应式调整 */
+@media (max-width: 1024px) {
+  .crystal-calendar-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 左侧边栏 */
+.crystal-calendar-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* 日历组件样式 */
+.crystal-calendar-widget {
+  background-color: var(--background);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+/* 能量预测卡片 */
+.energy-prediction-card {
+  background: linear-gradient(to bottom right, var(--primary-light), var(--background));
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+
+/* 标签页内容区域 */
+.crystal-calendar-tab-content {
+  padding: 1.5rem;
+  background-color: var(--background);
+  border-radius: 0.75rem;
+  min-height: 400px;
+}
+
+/* 能量指示器 */
+.energy-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.energy-indicator-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.energy-indicator-dot.active {
+  background: linear-gradient(to right, var(--primary), var(--accent));
+}
+
+.energy-indicator-dot.inactive {
+  background-color: var(--muted);
+}
+
+/* 卡片组样式 */
+.crystal-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+/* 水晶冥想卡片 */
+.meditation-scenario-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(to bottom right, var(--background), var(--muted-light));
+  transition: all 0.3s ease;
+}
+
+.meditation-scenario-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* 日程表样式 */
+.schedule-timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.schedule-timeline::before {
+  content: '';
+  position: absolute;
+  left: 0.75rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--primary), var(--accent));
+  opacity: 0.5;
+}
+
+.schedule-item {
+  position: relative;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+.schedule-item::before {
+  content: '';
+  position: absolute;
+  left: -1.25rem;
+  top: 1.25rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background-color: var(--primary);
+}
+
+.schedule-item.completed {
+  opacity: 0.7;
+  background-color: var(--muted-light);
+} 

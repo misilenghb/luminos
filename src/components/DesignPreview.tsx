@@ -198,6 +198,47 @@ const DesignPreview: React.FC<DesignPreviewProps> = ({ isGenerating, imageUrls, 
     setSelectedImage(null);
   }
 
+  const handleCopyImageUrl = async (imageUrl: string) => {
+    // 优先使用 Clipboard API
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(imageUrl);
+        toast({
+          title: t('toasts.imageLinkCopiedTitle'),
+          description: t('toasts.imageLinkCopiedDesc'),
+        });
+        return;
+      } catch (error) {
+        console.error('使用 Clipboard API 复制失败, 尝试备用方法:', error);
+      }
+    }
+
+    // 备用复制方法
+    const textarea = document.createElement('textarea');
+    textarea.value = imageUrl;
+    textarea.style.position = 'fixed';
+    textarea.style.top = '-9999px';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      toast({
+        title: t('toasts.imageLinkCopiedTitle'),
+        description: t('toasts.imageLinkCopiedDesc'),
+      });
+    } catch (err) {
+      console.error('备用复制方法失败:', err);
+      toast({
+        variant: "destructive",
+        title: t('toasts.imageLinkCopyErrorTitle'),
+        description: t('toasts.imageLinkCopyErrorDesc'),
+      });
+    } finally {
+      document.body.removeChild(textarea);
+    }
+  };
+
   const renderContent = () => {
     if (isGenerating) {
       return (

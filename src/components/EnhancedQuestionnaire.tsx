@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -59,18 +59,56 @@ const EnhancedQuestionnaire: React.FC<EnhancedQuestionnaireProps> = ({ onComplet
       financialStress: 3,
       generosity: 3,
       materialAttachment: 3,
-      financialGoals: []
+      financialGoals: [] as string[]
     },
     emotional: {
       selfAwareness: 3,
       emotionRegulation: 3,
       socialAwareness: 3,
       relationshipManagement: 3,
-      stressCoping: [],
+      stressCoping: [] as string[],
       emotionalTriggers: [],
       moodPatterns: []
     }
   });
+
+  // 加载本地存储的数据
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem('enhanced_questionnaire_data');
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        setFormData(parsedData);
+        console.log('✅ 已从本地存储加载增强问卷数据');
+      }
+    } catch (error) {
+      console.error('❌ 加载本地存储数据失败:', error);
+    }
+  }, []);
+
+  // 数据变化时保存到本地存储
+  useEffect(() => {
+    try {
+      localStorage.setItem('enhanced_questionnaire_data', JSON.stringify(formData));
+      // 不要在每次数据变化时都打印日志，避免控制台被刷屏
+    } catch (error) {
+      console.error('❌ 保存数据到本地存储失败:', error);
+    }
+  }, [formData]);
+  
+  // 自动保存到本地存储（定期备份）
+  useEffect(() => {
+    const autoSaveInterval = setInterval(() => {
+      try {
+        localStorage.setItem('enhanced_questionnaire_data', JSON.stringify(formData));
+        console.log('🔄 增强问卷数据已自动保存到本地存储');
+      } catch (error) {
+        console.error('❌ 自动保存到本地存储失败:', error);
+      }
+    }, 30000); // 每30秒自动保存一次
+    
+    return () => clearInterval(autoSaveInterval);
+  }, []);
 
   const tabs = [
     { id: 'physical', label: '身体体质', icon: Activity, color: 'bg-green-500' },
@@ -641,7 +679,18 @@ const EnhancedQuestionnaire: React.FC<EnhancedQuestionnaireProps> = ({ onComplet
           
           {currentTab === tabs[tabs.length - 1].id ? (
             <Button 
-              onClick={() => onComplete(formData)}
+              onClick={() => {
+                try {
+                  // 清除本地存储的数据
+                  localStorage.removeItem('enhanced_questionnaire_data');
+                  console.log('✅ 已清除本地存储的增强问卷数据');
+                } catch (error) {
+                  console.error('❌ 清除本地存储数据失败:', error);
+                }
+                
+                // 调用完成回调
+                onComplete(formData);
+              }}
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
             >
               完成评估

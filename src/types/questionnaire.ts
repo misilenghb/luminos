@@ -1,32 +1,55 @@
-import type { MbtiQuestionnaireAnswers as MbtiRawAnswers } from "@/lib/mbti-utils"; // Renamed for clarity
+import type { MbtiQuestionnaireAnswers as MbtiRawAnswers, MbtiDimensionAnswers } from "@/lib/mbti-utils"; // Renamed for clarity
 import type * as z from 'zod';
 
 
 export type Gender = 'male' | 'female' | 'other' | 'prefer_not_to_say';
 
+// 基本信息类型
 export interface BasicInfo {
   name: string;
-  birthDate: string; // YYYY-MM-DD
-  gender: Gender;
+  birthDate: string;
+  gender: 'male' | 'female' | 'other' | 'prefer_not_to_say';
 }
 
-export type MBTILikeAssessmentAnswers = MbtiRawAnswers;
+// 生活方式偏好类型
+export interface LifestylePreferences {
+  healingGoals: string[];
+  colorPreferences: string[];
+  activityPreferences: string[];
+}
 
-// Raw answers from the 28-question Chakra questionnaire
+// 当前状态类型
+export interface CurrentStatus {
+  energyLevel: number;
+  stressLevel: number;
+  sleepQuality: number;
+  emotionalState: string;
+  physicalConditions: string[];
+}
+
+// 脉轮问卷答案类型
 export interface ChakraQuestionnaireAnswers {
-  root: [number, number, number, number] | [undefined,undefined,undefined,undefined]; 
-  sacral: [number, number, number, number] | [undefined,undefined,undefined,undefined];
-  solarPlexus: [number, number, number, number] | [undefined,undefined,undefined,undefined];
-  heart: [number, number, number, number] | [undefined,undefined,undefined,undefined];
-  throat: [number, number, number, number] | [undefined,undefined,undefined,undefined];
-  thirdEye: [number, number, number, number] | [undefined,undefined,undefined,undefined];
-  crown: [number, number, number, number] | [undefined,undefined,undefined,undefined];
+  root: [number, number, number, number];
+  sacral: [number, number, number, number];
+  solarPlexus: [number, number, number, number];
+  heart: [number, number, number, number];
+  throat: [number, number, number, number];
+  thirdEye: [number, number, number, number];
+  crown: [number, number, number, number];
+  [key: string]: [number, number, number, number];
 }
 
+// MBTI问卷答案类型
+export interface MbtiQuestionnaireAnswers {
+  eiAnswers: MbtiDimensionAnswers;
+  snAnswers: MbtiDimensionAnswers;
+  tfAnswers: MbtiDimensionAnswers;
+  jpAnswers: MbtiDimensionAnswers;
+}
 
-// Calculated average scores for each chakra (this is what's sent to AI)
+// 脉轮评估分数类型
 export interface ChakraAssessmentScores {
-  rootChakraFocus: number; // Average score 1-5
+  rootChakraFocus: number;
   sacralChakraFocus: number;
   solarPlexusChakraFocus: number;
   heartChakraFocus: number;
@@ -35,88 +58,34 @@ export interface ChakraAssessmentScores {
   crownChakraFocus: number;
 }
 
-
-export interface LifestylePreferences {
-  colorPreferences: string[];
-  activityPreferences: string[];
-  healingGoals: string[];
-}
-
-export interface CurrentStatus {
-  stressLevel: number; // 1 (Very Low) to 5 (Very High)
-  energyLevel: number; // 1 (Very Low) to 5 (Very High)
-  emotionalState: string;
-}
-
-// 新增：身体体质评估
-export interface PhysicalAssessment {
-  height?: number; // 身高(cm)
-  weight?: number; // 体重(kg)
-  exerciseFrequency: number; // 1-5: 从不运动到每天运动
-  sleepQuality: number; // 1-5: 睡眠质量评分
-  energyPeakTime: 'morning' | 'afternoon' | 'evening' | 'night'; // 精力最佳时段
-  stressResponse: number; // 1-5: 压力应对能力
-  healthConcerns: string[]; // 健康关注点
-}
-
-// 新增：生活节律评估
-export interface LifeRhythm {
-  wakeUpTime: string; // HH:MM
-  bedTime: string; // HH:MM
-  workSchedule: 'fixed' | 'flexible' | 'irregular'; // 工作时间规律性
-  socialFrequency: number; // 1-5: 社交活动频率
-  seasonalMood: number; // 1-5: 季节对情绪的影响程度
-  digitalUsage: number; // 1-5: 数字设备使用时间
-  natureConnection: number; // 1-5: 与自然的连接频率
-}
-
-// 新增：社交关系评估
-export interface SocialAssessment {
-  relationshipStatus: 'single' | 'dating' | 'married' | 'complicated' | 'prefer_not_say';
-  socialCircleSize: number; // 1-5: 社交圈大小
-  conflictHandling: number; // 1-5: 冲突处理能力
-  empathyLevel: number; // 1-5: 共情能力
-  communicationPreference: 'direct' | 'diplomatic' | 'passive' | 'assertive';
-  energyDrain: string[]; // 消耗能量的人际关系类型
-  energyBoost: string[]; // 增强能量的人际关系类型
-}
-
-// 新增：财务能量评估
-export interface FinancialEnergyAssessment {
-  moneyRelationship: 'love' | 'neutral' | 'stress' | 'fear' | 'control';
-  abundanceMindset: number; // 1-5: 丰盛心态评分
-  financialStress: number; // 1-5: 财务压力水平
-  generosity: number; // 1-5: 慷慨程度
-  materialAttachment: number; // 1-5: 对物质的依恋程度
-  financialGoals: string[]; // 财务目标
-}
-
-// 新增：情绪智能评估
-export interface EmotionalIntelligenceAssessment {
-  selfAwareness: number; // 1-5: 自我觉察能力
-  emotionRegulation: number; // 1-5: 情绪调节能力
-  socialAwareness: number; // 1-5: 社会觉察能力
-  relationshipManagement: number; // 1-5: 关系管理能力
-  stressCoping: string[]; // 压力应对方式
-  emotionalTriggers: string[]; // 情绪触发点
-  moodPatterns: string[]; // 情绪模式
-}
-
-// For react-hook-form values
+// 完整问卷表单值类型
 export interface QuestionnaireFormValues {
   basicInfo: BasicInfo;
-  mbtiAnswers: MBTILikeAssessmentAnswers; // Will store arrays of 'A'|'B'|undefined
-  chakraAnswers: ChakraQuestionnaireAnswers; // Stores the 28 raw scores (number|undefined)
   lifestylePreferences: LifestylePreferences;
   currentStatus: CurrentStatus;
-  // 新增可选的深度评估模块
-  physicalAssessment?: PhysicalAssessment;
-  lifeRhythm?: LifeRhythm;
-  socialAssessment?: SocialAssessment;
-  financialEnergyAssessment?: FinancialEnergyAssessment;
-  emotionalIntelligenceAssessment?: EmotionalIntelligenceAssessment;
+  chakraAnswers?: ChakraQuestionnaireAnswers;
+  mbtiAnswers?: MbtiQuestionnaireAnswers;
 }
 
+// 问卷分析结果类型
+export interface QuestionnaireAnalysisResult {
+  inferredZodiac: string;
+  inferredChineseZodiac: string;
+  inferredElement: string;
+  mbtiLikeType: string;
+  coreEnergyInsights: string[];
+  chakraScores?: ChakraAssessmentScores;
+}
+
+// MBTI 类似类型答案（兼容 AI 推理结果和表单）
+export interface MBTILikeAssessmentAnswers {
+  ei?: number[];
+  sn?: number[];
+  tf?: number[];
+  jp?: number[];
+  type?: string;
+  [key: string]: any;
+}
 
 // Input type for the AI flow
 export interface FullQuestionnaireDataInput {

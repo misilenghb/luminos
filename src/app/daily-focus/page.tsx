@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getDailyGuidance } from '@/ai/flows/daily-guidance-flow';
@@ -30,6 +30,12 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { zhCN } from 'date-fns/locale';
+import CrystalMeditation from '@/components/CrystalMeditation';
+import '@/styles/crystal-calendar.css';
+
+// 添加缺少的图标
+const Crystal = Gem; // 使用 Gem 图标代替 Crystal
+const Lotus = Wind; // 使用 Wind 图标代替 Lotus
 
 // 类型定义
 interface DailyGuidanceResult {
@@ -40,7 +46,7 @@ interface DailyGuidanceResult {
 }
 
 // 能量状态类型定义
-interface DailyEnergyState {
+export interface DailyEnergyState {
   date: Date;
   energyLevel: number; // 1-5
   dominantChakra: string;
@@ -101,18 +107,35 @@ const chakraColors = {
 };
 
 // 生成个性化能量预测
-const generateEnergyPrediction = (date: Date, profile?: UserProfileDataOutput): DailyEnergyState => {
+const generateEnergyPrediction = (date: Date, profile?: UserProfileDataOutput | null): DailyEnergyState => {
   const dayOfWeek = getDay(date);
   const dayOfMonth = date.getDate();
   
-  // 基于用户画像的个性化逻辑
-  const mbtiType = profile?.mbtiLikeType?.match(/\b([IE][NS][TF][JP])\b/)?.[0];
-  const element = profile?.inferredElement?.toLowerCase();
-  const zodiac = profile?.inferredZodiac?.toLowerCase();
+  // 默认值
+  const defaultMbtiType = 'ENFP';
+  const defaultElement = 'fire';
+  const defaultZodiac = 'aries';
+  
+  // 安全地获取 MBTI 类型，确保即使 profile 为 undefined 也能正常工作
+  let mbtiType = defaultMbtiType;
+  try {
+    if (profile && profile.mbtiLikeType) {
+      const match = profile.mbtiLikeType.match(/\b([IE][NS][TF][JP])\b/);
+      if (match && match[0]) {
+        mbtiType = match[0];
+      }
+    }
+  } catch (e) {
+    console.error("Error extracting MBTI type:", e);
+  }
+  
+  // 安全地获取元素和星座
+  const element = profile?.inferredElement?.toLowerCase() || defaultElement;
+  const zodiac = profile?.inferredZodiac?.toLowerCase() || defaultZodiac;
   
   // 根据星期和个人特质计算能量水平
   let energyLevel = 3;
-  if (mbtiType?.startsWith('E')) {
+  if (mbtiType.startsWith('E')) {
     energyLevel += dayOfWeek === 1 || dayOfWeek === 5 ? 1 : 0; // 外向者周一周五更有活力
   } else {
     energyLevel += dayOfWeek === 0 || dayOfWeek === 6 ? 1 : 0; // 内向者周末更有活力
@@ -151,8 +174,18 @@ const generateEnergyPrediction = (date: Date, profile?: UserProfileDataOutput): 
     'P': ['灵活适应', '探索新奇', '开放变化']
   };
   
-  const mbtiChar = mbtiType?.[dayOfMonth % 4] || 'E';
-  const mbtiMood = mbtiMoods[mbtiChar]?.[dayOfMonth % 3] || '平衡状态';
+  // 安全地获取 MBTI 心情
+  let mbtiMood = '平衡状态';
+  try {
+    if (mbtiType && mbtiType.length > 0) {
+      const mbtiChar = mbtiType[dayOfMonth % 4];
+      if (mbtiChar && mbtiMoods[mbtiChar]) {
+        mbtiMood = mbtiMoods[mbtiChar][dayOfMonth % 3];
+      }
+    }
+  } catch (e) {
+    console.error("Error determining MBTI mood:", e);
+  }
   
   // 五行元素的日常平衡
   const elementBalance = element === 'fire' ? '活力充沛' :
@@ -237,8 +270,8 @@ const PersonalizedCalendar = ({
   };
 
   return (
-    <Card className="w-full">
-      <CardContent className="pb-6">
+    <Card className="crystal-calendar-widget">
+      <CardContent className="p-4">
         <Calendar
           mode="single"
           selected={selectedDate}
@@ -279,712 +312,402 @@ const EnergyInsightDisplay = ({
 }: { 
   guidance?: DailyGuidanceResult;
   energyState: DailyEnergyState;
-  profile?: UserProfileDataOutput;
+  profile?: UserProfileDataOutput | null;
 }) => {
-    const { t } = useLanguage();
-  const ChakraIcon = chakraIcons[energyState.dominantChakra as keyof typeof chakraIcons] || Sun;
-  const userElement = profile?.inferredElement?.toLowerCase() || 'earth';
-  const ElementIcon = elementIcons[userElement as keyof typeof elementIcons] || Mountain;
+  if (!guidance) {
+    return (
+      <div className="energy-insight-placeholder">
+        <div className="text-center space-y-4">
+          <Sparkles className="h-12 w-12 mx-auto text-primary opacity-50" />
+          <h3 className="text-lg font-medium">能量洞察尚未生成</h3>
+          <p className="text-muted-foreground">请先完成个人能量档案评估，或稍后再试。</p>
+        </div>
+      </div>
+    );
+  }
   
-            return (
-    <div className="space-y-6">
-      {/* 日期和总体状态 */}
-      <Card className="bg-gradient-to-r from-primary/10 to-accent/10">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>{format(energyState.date, 'yyyy年MM月dd日', { locale: zhCN })}</span>
-            <div className="flex items-center gap-2">
-              {Array.from({ length: 5 }, (_, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    "w-2 h-2 rounded-full",
-                    i < energyState.energyLevel ? "bg-primary" : "bg-muted"
-                  )}
-                />
-              ))}
-            </div>
-          </CardTitle>
-          <CardDescription>
-            能量水平：{energyState.energyLevel}/5 | 整体状态：{energyState.elementBalance}
-          </CardDescription>
-        </CardHeader>
-      </Card>
-
-      {/* 主要能量信息 */}
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* 主导脉轮 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center text-lg">
-              <ChakraIcon className="mr-3 h-6 w-6" />
-              今日主导脉轮
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className={cn(
-              "inline-flex items-center px-3 py-1 rounded-full text-sm font-medium",
-              chakraColors[energyState.dominantChakra as keyof typeof chakraColors]
-            )}>
-              <ChakraIcon className="mr-2 h-4 w-4" />
-              {energyState.dominantChakra === 'root' ? '海底轮' :
-               energyState.dominantChakra === 'sacral' ? '脐轮' :
-               energyState.dominantChakra === 'solarPlexus' ? '太阳神经丛轮' :
-               energyState.dominantChakra === 'heart' ? '心轮' :
-               energyState.dominantChakra === 'throat' ? '喉轮' :
-               energyState.dominantChakra === 'thirdEye' ? '眉心轮' : '顶轮'}
-                </div>
-            <p className="text-sm text-muted-foreground mt-3">
-              今日重点关注{energyState.dominantChakra === 'heart' ? '情感表达与爱的流动' : '对应的能量中心平衡'}
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* 推荐水晶 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center text-lg">
-              <Gem className="mr-3 h-6 w-6 text-primary" />
-              今日水晶伙伴
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full flex items-center justify-center">
-                <Gem className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <div className="font-semibold">{energyState.recommendedCrystal}</div>
-                <div className="text-sm text-muted-foreground">与您的{energyState.dominantChakra}能量共振</div>
-                                            </div>
-                                        </div>
-          </CardContent>
-        </Card>
-                                        </div>
-
-      {/* 个性化指导 */}
-      {guidance && (
-        <div className="grid gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Wind className="mr-3 h-6 w-6 text-blue-500" />
-                冥想引导
-              </CardTitle>
-            </CardHeader>
-                       <CardContent>
-             <p className="text-muted-foreground leading-relaxed">
-               {guidance.meditationPrompt}
-             </p>
-           </CardContent>
-         </Card>
-
-         <Card>
-           <CardHeader>
-             <CardTitle className="flex items-center">
-               <Lightbulb className="mr-3 h-6 w-6 text-yellow-500" />
-               能量洞察
-             </CardTitle>
-                              </CardHeader>
-           <CardContent>
-             <p className="text-muted-foreground leading-relaxed">
-               {guidance.guidance}
-             </p>
-           </CardContent>
-                            </Card>
-                        </div>
-      )}
-
-      {/* 个人特质提醒 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Brain className="mr-3 h-6 w-6 text-purple-500" />
-            个性化提醒
-          </CardTitle>
-                              </CardHeader>
-        <CardContent className="grid md:grid-cols-2 gap-4">
-          <div>
-            <div className="text-sm font-medium text-muted-foreground mb-2">MBTI状态倾向</div>
-            <Badge variant="outline">{energyState.mbtiMood}</Badge>
-          </div>
-          <div>
-            <div className="text-sm font-medium text-muted-foreground mb-2">元素平衡状态</div>
-            <div className="flex items-center gap-2">
-              <ElementIcon className="h-4 w-4" />
-              <span className="text-sm">{energyState.elementBalance}</span>
-            </div>
-          </div>
-        </CardContent>
-                            </Card>
-                        </div>
-  );
-};
-
-// 能量趋势组件
-const EnergyTrendView = ({ profile }: { profile?: UserProfileDataOutput }) => {
-  const today = startOfToday();
-  const weekData = Array.from({ length: 5 }, (_, i) => {
-    const date = addDays(today, i - 2);
-    const energy = generateEnergyPrediction(date, profile);
-    return {
-      date: format(date, 'MM/dd'),
-      weekday: format(date, 'EEEEEE'),
-      level: energy.energyLevel,
-      chakra: energy.dominantChakra,
-      isToday: isSameDay(date, today)
-    };
-  });
-
+  // 安全地获取用户名，确保不会出现空值错误
+  const userName = profile?.name || '能量探索者';
+  
+  // 将指导内容分段显示
+  const paragraphs = guidance.guidance.split('\n\n').filter(p => p.trim().length > 0);
+  
   return (
-    <div className="space-y-3">
-      {weekData.map((day, index) => (
-        <div key={index} className={cn(
-          "flex items-center justify-between p-3 rounded-lg border transition-colors",
-          day.isToday ? "bg-primary/5 border-primary/20" : "bg-muted/30 border-border/30"
-        )}>
-          <div className="flex items-center space-x-3">
-            <div className="text-center min-w-[40px]">
-              <div className={cn(
-                "text-xs font-medium",
-                day.isToday ? "text-primary" : "text-muted-foreground"
-              )}>
-                {day.weekday}
-              </div>
-              <div className={cn(
-                "text-sm font-semibold",
-                day.isToday ? "text-primary" : "text-foreground"
-              )}>
-                {day.date.split('/')[1]}
-              </div>
-            </div>
+    <div className="energy-insight-display">
+      <div className="space-y-6">
+        <div className="energy-greeting">
+          <h3 className="text-xl font-medium">
+            {userName}，{format(new Date(), 'EEEE', { locale: zhCN })}好
+          </h3>
+          <p className="text-muted-foreground">
+            今天是{format(new Date(), 'yyyy年MM月dd日')}，以下是您的个性化能量洞察
+          </p>
+        </div>
+        
+        <Separator />
+        
+        <div className="energy-guidance prose">
+          {paragraphs.map((paragraph, index) => (
+            <p key={index}>{paragraph}</p>
+          ))}
+        </div>
+        
+        <div className="energy-focus-areas">
+          <h4 className="text-lg font-medium mb-3 flex items-center gap-2">
+            <Target className="h-4 w-4 text-primary" />
+            今日能量焦点
+          </h4>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="energy-focus-card">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Crystal className="h-4 w-4 text-purple-500" />
+                  推荐水晶
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>{energyState.recommendedCrystal}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  这种水晶能帮助平衡您今天的能量场
+                </p>
+              </CardContent>
+            </Card>
             
-            <div className="flex items-center gap-2">
-              <div className="flex gap-1">
-                {Array.from({ length: 5 }, (_, i) => (
-                  <div
-                    key={i}
-                    className={cn(
-                      "w-1.5 h-1.5 rounded-full transition-colors",
-                      i < day.level 
-                        ? day.isToday ? "bg-primary" : "bg-primary/70"
-                        : "bg-muted-foreground/30"
-                    )}
-                  />
-                ))}
-              </div>
-              
-              <Badge 
-                variant={day.isToday ? "default" : "outline"} 
-                className="text-xs px-2 py-0.5"
-              >
-                {day.chakra === 'heart' ? '心轮' : 
-                 day.chakra === 'throat' ? '喉轮' : 
-                 day.chakra === 'crown' ? '顶轮' : 
-                 day.chakra === 'root' ? '海底轮' :
-                 day.chakra === 'sacral' ? '脐轮' :
-                 day.chakra === 'solar' ? '太阳轮' :
-                 day.chakra === 'third_eye' ? '眉心轮' : '脉轮'}
-              </Badge>
-            </div>
+            <Card className="energy-focus-card">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Brain className="h-4 w-4 text-blue-500" />
+                  心智状态
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>{energyState.mbtiMood}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  今天您的思维模式和决策倾向
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="energy-focus-card">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Flame className="h-4 w-4 text-orange-500" />
+                  元素平衡
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>{energyState.elementBalance}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  您今天的五行元素状态
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="energy-focus-card">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Lotus className="h-4 w-4 text-pink-500" />
+                  冥想主题
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>{guidance.meditationPrompt}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  今日推荐的冥想焦点
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
-      ))}
+      </div>
     </div>
   );
 };
 
-export default function CrystalCalendarPage() {
-    const { t, language } = useLanguage();
-    const { user, isAuthenticated, isAuthLoading } = useAuth();
-    
-    const [selectedDate, setSelectedDate] = useState<Date>(startOfToday());
-    const [guidance, setGuidance] = useState<DailyGuidanceResult | null>(null);
-    const [isLoadingGuidance, setIsLoadingGuidance] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [userProfile, setUserProfile] = useState<UserProfileDataOutput | null>(null);
-    const [isProfileLoading, setIsProfileLoading] = useState(true);
-    
-    useEffect(() => {
-        if (!isAuthLoading && isAuthenticated && user) {
-            setIsProfileLoading(true);
-            getUserProfile(user.email)
-                .then(profile => {
-                    setUserProfile(profile);
-                })
-                .catch(err => {
-                    console.error("Failed to load user profile", err);
-                    setUserProfile(null);
-                })
-                .finally(() => {
-                    setIsProfileLoading(false);
-                });
-        } else if (!isAuthLoading) {
-            setIsProfileLoading(false);
-            setUserProfile(null);
-        }
-    }, [user, isAuthenticated, isAuthLoading]);
-
-    useEffect(() => {
-        const fetchGuidanceForDate = async (targetDate: Date) => {
-            if (!isAuthenticated || !user || !userProfile) {
-                setIsLoadingGuidance(false);
-                return;
-            }
-
-            // 只为今天及未来日期生成指导
-            if (isBefore(startOfDay(targetDate), startOfToday())) {
-                setGuidance(null);
-                setError(null);
-                setIsLoadingGuidance(false);
-                return;
-            }
-
-            setIsLoadingGuidance(true);
-            setError(null);
-            setGuidance(null);
-
-            try {
-                const formattedDate = format(targetDate, "yyyy-MM-dd");
-                 const result = await getDailyGuidance({ 
-                     userProfile: userProfile, 
-                     language, 
-                     targetDate: formattedDate
-                 });
-                setGuidance(result);
-            } catch (err) {
-                console.error("Error fetching daily guidance:", err);
-                setError(err instanceof Error ? err.message : '获取指导失败');
-            } finally {
-                setIsLoadingGuidance(false);
-            }
-        };
-
-        if (!isAuthLoading && !isProfileLoading && selectedDate) {
-            fetchGuidanceForDate(selectedDate);
-        } else if (!isAuthLoading && !isProfileLoading) {
-            setIsLoadingGuidance(false);
-        }
-    }, [selectedDate, isAuthenticated, user, isAuthLoading, language, userProfile, isProfileLoading]);
-
-    if (isAuthLoading || isProfileLoading) {
-        return (
-            <div className="container mx-auto p-4 md:p-8">
-                <div className="flex items-center justify-center h-64">
-                    <Loader2 className="h-8 w-8 animate-spin" />
-                    <span className="ml-4 text-lg">正在加载您的能量画像...</span>
-                </div>
-            </div>
-        );
-        }
-
-        if (!isAuthenticated) {
-            return (
-            <div className="container mx-auto p-4 md:p-8">
-                <div className="text-center py-16">
-                    <Card className="max-w-md mx-auto shadow-xl">
-                    <CardHeader>
-                            <CardTitle className="flex items-center justify-center">
-                                <LogIn className="mr-2"/>
-                                登录查看水晶日历
-                            </CardTitle>
-                    </CardHeader>
-                        <CardContent>
-                            <p>个性化的能量指导需要您先登录并创建能量画像</p>
-                        </CardContent>
-                    <CardFooter>
-                            <Button asChild className="w-full">
-                                <Link href="/login">立即登录</Link>
-                            </Button>
-                    </CardFooter>
-                </Card>
-                </div>
-                </div>
-            );
-        }
-
-    if (!userProfile && !isProfileLoading) {
-            return (
-            <div className="container mx-auto p-4 md:p-8">
-                <div className="text-center py-16">
-                    <Card className="max-w-md mx-auto shadow-xl">
-                 <CardHeader>
-                            <CardTitle className="flex items-center justify-center">
-                                <FileText className="mr-2"/>
-                                创建您的能量画像
-                            </CardTitle>
-                 </CardHeader>
-                        <CardContent>
-                            <p>要使用个性化的水晶日历，请先完成能量画像测评</p>
-                        </CardContent>
-                 <CardFooter>
-                            <Button asChild className="w-full">
-                                <Link href="/energy-exploration">开始测评</Link>
-                            </Button>
-                 </CardFooter>
-               </Card>
-                </div>
-            </div>
-        );
-    }
-
-    const energyState = generateEnergyPrediction(selectedDate, userProfile || undefined);
-    
+// 能量趋势组件
+const EnergyTrendView = ({ profile }: { profile?: UserProfileDataOutput | null }) => {
+  // 如果没有用户档案，显示占位符
+  if (!profile) {
     return (
-        <div className="container mx-auto p-4 md:p-8 space-y-8">
-            {/* 页面标题 */}
-            <header className="text-center">
-                <h1 className="text-4xl md:text-5xl font-headline font-bold gradient-text halo-effect flex items-center justify-center">
-                    <Sparkles className="mr-3 h-10 w-10" />
-                    水晶日历
-                </h1>
-                <p className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">
-                    基于您独特的能量画像，为每一天提供个性化的水晶指导与能量洞察
-                </p>
-            </header>
-
-            {/* 个人能量画像概览 - 5维图谱简化版 */}
-            {userProfile && (
-                <div className="bg-gradient-to-r from-primary/5 via-secondary/5 to-primary/5 rounded-xl p-6 border border-primary/10">
-                    <div className="flex flex-row gap-6 items-stretch">
-                        <div style={{ minWidth: 260, flex: '0 0 260px' }}>
-                            <ProfileSummaryCard profile={userProfile} />
-                        </div>
-                        <div className="flex-1">
-                            <Card className="bg-background/50 backdrop-blur h-full flex flex-col justify-center">
-                                <CardContent>
-                                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                                        {/* 简化的5维能量显示 */}
-                                        <div className="text-center p-3 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-100 dark:border-blue-800">
-                                            <Brain className="h-5 w-5 mx-auto mb-1 text-blue-600" />
-                                            <p className="text-xs font-medium text-blue-800 dark:text-blue-200">心智能量</p>
-                                            <p className="text-sm font-bold text-blue-600 dark:text-blue-400">85%</p>
-                                        </div>
-                                        <div className="text-center p-3 rounded-lg bg-green-50 dark:bg-green-950 border border-green-100 dark:border-green-800">
-                                            <Heart className="h-5 w-5 mx-auto mb-1 text-green-600" />
-                                            <p className="text-xs font-medium text-green-800 dark:text-green-200">情感能量</p>
-                                            <p className="text-sm font-bold text-green-600 dark:text-green-400">78%</p>
-                                        </div>
-                                        <div className="text-center p-3 rounded-lg bg-purple-50 dark:bg-purple-950 border border-purple-100 dark:border-purple-800">
-                                            <Sparkles className="h-5 w-5 mx-auto mb-1 text-purple-600" />
-                                            <p className="text-xs font-medium text-purple-800 dark:text-purple-200">灵性能量</p>
-                                            <p className="text-sm font-bold text-purple-600 dark:text-purple-400">72%</p>
-                                        </div>
-                                        <div className="text-center p-3 rounded-lg bg-orange-50 dark:bg-orange-950 border border-orange-100 dark:border-orange-800">
-                                            <Mountain className="h-5 w-5 mx-auto mb-1 text-orange-600" />
-                                            <p className="text-xs font-medium text-orange-800 dark:text-orange-200">身体能量</p>
-                                            <p className="text-sm font-bold text-orange-600 dark:text-orange-400">80%</p>
-                                        </div>
-                                        <div className="text-center p-3 rounded-lg bg-indigo-50 dark:bg-indigo-950 border border-indigo-100 dark:border-indigo-800">
-                                            <Users className="h-5 w-5 mx-auto mb-1 text-indigo-600" />
-                                            <p className="text-xs font-medium text-indigo-800 dark:text-indigo-200">社交能量</p>
-                                            <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400">75%</p>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* 主要功能标签页 */}
-            <Tabs defaultValue="calendar" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="calendar" className="flex items-center space-x-2">
-                        <CalendarIcon className="h-4 w-4" />
-                        <span className="hidden sm:inline">日历</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="trends" className="flex items-center space-x-2">
-                        <TrendingUp className="h-4 w-4" />
-                        <span className="hidden sm:inline">趋势</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="meditation" className="flex items-center space-x-2">
-                        <Gem className="h-4 w-4" />
-                        <span className="hidden sm:inline">冥想</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="schedule" className="flex items-center space-x-2">
-                        <Target className="h-4 w-4" />
-                        <span className="hidden sm:inline">日程</span>
-                    </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="calendar" className="space-y-6 mt-6">
-                    <div className="grid lg:grid-cols-12 gap-6">
-                        {/* 左侧：融合的日历和趋势板块 */}
-                        <div className="lg:col-span-6">
-                            <Card className="h-full">
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="flex items-center justify-between">
-                                        <span className="flex items-center">
-                                            <CalendarIcon className="mr-2 h-5 w-5" />
-                                            个性化水晶日历
-                                        </span>
-                                        <div className="flex items-center space-x-1 text-sm text-muted-foreground">
-                                            <TrendingUp className="h-4 w-4" />
-                                            <span>能量趋势</span>
-                                        </div>
-                                    </CardTitle>
-                                    <CardDescription>
-                                        基于您的能量画像预测每日水晶指导和能量状态
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    {/* 日历部分 */}
-                                    <div className="calendar-container">
-                                        <PersonalizedCalendar
-                                            profile={userProfile || undefined}
-                                            selectedDate={selectedDate}
-                                            onDateSelect={setSelectedDate}
-                                        />
-                                    </div>
-                                    
-                                    {/* 分隔线 */}
-                                    <div className="border-t border-border/50 my-4"></div>
-                                    
-                                    {/* 简化的能量趋势 */}
-                                    <div className="trend-summary">
-                                        <h4 className="text-sm font-medium text-muted-foreground mb-3 flex items-center">
-                                            <TrendingUp className="mr-2 h-4 w-4" />
-                                            近期能量趋势
-                                        </h4>
-                                        <EnergyTrendView profile={userProfile || undefined} />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-
-                        {/* 右侧：当日详细信息 */}
-                        <div className="lg:col-span-6">
-                            {isLoadingGuidance ? (
-                                <div className="space-y-6">
-                                    <Skeleton className="h-32 w-full" />
-                                    <Skeleton className="h-24 w-full" />
-                                    <Skeleton className="h-24 w-full" />
-                                </div>
-                            ) : (
-                                <EnergyInsightDisplay
-                                    guidance={guidance || undefined}
-                                    energyState={energyState}
-                                    profile={userProfile || undefined}
-                                />
-                            )}
-                        </div>
-                    </div>
-                </TabsContent>
-
-                <TabsContent value="trends" className="space-y-6 mt-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* 基于用户画像的能量洞察 */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center">
-                                    <Brain className="mr-2 h-5 w-5" />
-                                    今日能量洞察
-                                </CardTitle>
-                                <CardDescription>
-                                    基于您的个人特质为今天提供能量指导
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 rounded-lg border border-blue-100 dark:border-blue-800">
-                                    <h3 className="font-medium text-blue-800 dark:text-blue-200 mb-2 flex items-center">
-                                        <Zap className="mr-2 h-4 w-4" />
-                                        主导能量特质
-                                    </h3>
-                                    <p className="text-sm text-blue-700 dark:text-blue-300">
-                                        {userProfile?.mbtiLikeType ? 
-                                            `${userProfile.mbtiLikeType} 类型今天适合${energyState.mbtiMood}` :
-                                            '根据五行元素，今天适合保持内在平衡'
-                                        }
-                                    </p>
-                                </div>
-                                
-                                <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 rounded-lg border border-green-100 dark:border-green-800">
-                                    <h3 className="font-medium text-green-800 dark:text-green-200 mb-2 flex items-center">
-                                        <Target className="mr-2 h-4 w-4" />
-                                        能量建议
-                                    </h3>
-                                    <p className="text-sm text-green-700 dark:text-green-300">
-                                        {energyState.mbtiMood} - {energyState.elementBalance}。
-                                        建议今日多关注内在平衡，保持能量的和谐流动。
-                                    </p>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* 能量数值与状态 */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center">
-                                    <BarChart3 className="mr-2 h-5 w-5" />
-                                    能量状态监测
-                                </CardTitle>
-                                <CardDescription>
-                                    实时显示您的多维度能量水平
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                {/* 今日能量等级 */}
-                                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg">
-                                    <span className="font-medium">今日能量等级</span>
-                                    <div className="flex items-center gap-2">
-                                        <div className="flex gap-1">
-                                            {Array.from({ length: 5 }).map((_, i) => (
-                                                <Star
-                                                    key={i}
-                                                    className={`h-4 w-4 ${
-                                                        i < energyState.energyLevel 
-                                                            ? 'text-yellow-500 fill-yellow-500' 
-                                                            : 'text-gray-300'
-                                                    }`}
-                                                />
-                                            ))}
-                                        </div>
-                                        <Badge variant="secondary">
-                                            {energyState.energyLevel}/5
-                                        </Badge>
-                                    </div>
-                                </div>
-
-                                {/* 选择的日期 */}
-                                <div className="text-center p-4 bg-muted/50 rounded-lg">
-                                    <p className="text-sm text-muted-foreground mb-1">当前选择日期</p>
-                                    <p className="text-lg font-medium">
-                                        {format(selectedDate, 'yyyy年MM月dd日', { locale: zhCN })}
-                                    </p>
-                                    {format(selectedDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') && (
-                                        <Badge className="mt-2" variant="default">今天</Badge>
-                                    )}
-                                </div>
-
-                                {/* 能量提醒 */}
-                                <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950 rounded-lg border border-purple-100 dark:border-purple-800">
-                                    <h4 className="font-medium text-purple-800 dark:text-purple-200 mb-1">
-                                        💫 今日能量提醒
-                                    </h4>
-                                    <p className="text-xs text-purple-700 dark:text-purple-300">
-                                        根据您的个人特质分析，今天是{energyState.energyLevel >= 4 ? '高能量' : energyState.energyLevel >= 3 ? '中等能量' : '低能量'}日，
-                                        建议{energyState.energyLevel >= 4 ? '积极行动，把握机会' : energyState.energyLevel >= 3 ? '保持平衡，稳步前进' : '温和调养，积蓄力量'}。
-                                    </p>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                    {/* 详细能量图谱入口 */}
-                    <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-secondary/5">
-                        <CardHeader className="text-center">
-                            <CardTitle className="flex items-center justify-center text-xl">
-                                <Orbit className="mr-3 h-6 w-6 text-primary" />
-                                完整能量图谱分析
-                            </CardTitle>
-                            <CardDescription className="text-base">
-                                想要查看您的五维/八维完整能量分析？
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="text-center">
-                            <p className="text-muted-foreground mb-4">
-                                完整的能量图谱分析已整合到"能量探索"页面，提供更专业详细的多维度分析报告
-                            </p>
-                            <Button asChild className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90">
-                                <Link href="/energy-exploration">
-                                    <Orbit className="mr-2 h-4 w-4" />
-                                    前往能量探索页面
-                                </Link>
-                            </Button>
-                        </CardContent>
-                    </Card>
-
-                    {/* 快速链接 */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                            <CardContent className="p-6 text-center">
-                                <CalendarIcon className="h-8 w-8 mx-auto mb-3 text-primary" />
-                                <h3 className="font-semibold mb-2">回到日历</h3>
-                                <p className="text-sm text-muted-foreground">查看每日水晶指导</p>
-                            </CardContent>
-                        </Card>
-                        
-                        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                            <CardContent className="p-6 text-center">
-                                <Gem className="h-8 w-8 mx-auto mb-3 text-primary" />
-                                <h3 className="font-semibold mb-2">水晶冥想</h3>
-                                <p className="text-sm text-muted-foreground">开启冥想练习</p>
-                            </CardContent>
-                        </Card>
-                        
-                        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                            <CardContent className="p-6 text-center">
-                                <Target className="h-8 w-8 mx-auto mb-3 text-primary" />
-                                <h3 className="font-semibold mb-2">制定计划</h3>
-                                <p className="text-sm text-muted-foreground">基于能量安排日程</p>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </TabsContent>
-
-                <TabsContent value="meditation" className="space-y-6 mt-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center">
-                                <Gem className="mr-2 h-5 w-5" />
-                                水晶冥想指导
-                            </CardTitle>
-                            <CardDescription>
-                                基于今日推荐水晶的冥想练习
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                <div className="p-4 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-950 dark:to-indigo-950 rounded-lg">
-                                    <h3 className="font-medium mb-2">今日推荐水晶: {energyState.recommendedCrystal}</h3>
-                                    <p className="text-sm text-muted-foreground">
-                                        将{energyState.recommendedCrystal}握在手中，闭上眼睛，深呼吸，感受水晶的能量与您的{energyState.dominantChakra}脉轮共振。
-                                    </p>
-                                </div>
-                                <div className="text-center py-8">
-                                    <p className="text-muted-foreground">冥想功能正在开发中...</p>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
-                <TabsContent value="schedule" className="space-y-6 mt-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center">
-                                <Target className="mr-2 h-5 w-5" />
-                                个性化日程建议
-                            </CardTitle>
-                            <CardDescription>
-                                基于能量状态的日程安排建议
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 rounded-lg">
-                                    <h3 className="font-medium mb-2">今日建议活动</h3>
-                                    <p className="text-sm text-muted-foreground">
-                                        根据您{energyState.energyLevel}/5的能量水平，建议
-                                        {energyState.energyLevel >= 4 ? '安排重要会议或创意工作' : 
-                                         energyState.energyLevel >= 3 ? '进行日常工作和社交活动' : 
-                                         '专注于休息和内省活动'}。
-                                    </p>
-                                </div>
-                                <div className="text-center py-8">
-                                    <p className="text-muted-foreground">智能日程功能正在开发中...</p>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
-
-            </Tabs>
-        </div>
+      <Card className="trend-card">
+        <CardHeader>
+          <CardTitle className="text-lg">能量趋势</CardTitle>
+          <CardDescription>完成个人档案评估后查看能量趋势</CardDescription>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-40">
+          <div className="text-center">
+            <Sparkles className="h-10 w-10 mx-auto text-muted-foreground opacity-50 mb-2" />
+            <p className="text-sm text-muted-foreground">需要更多数据来生成趋势图</p>
+          </div>
+        </CardContent>
+      </Card>
     );
+  }
+
+  return (
+    <Card className="trend-card">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">能量趋势</CardTitle>
+        <CardDescription>过去7天的能量变化</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <EnergyTrendChart profile={profile} />
+      </CardContent>
+    </Card>
+  );
+};
+
+export default function CrystalCalendarPage() {
+  const { user } = useAuth();
+  const { t } = useLanguage();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [profile, setProfile] = useState<UserProfileDataOutput>({
+    name: '默认用户',
+    mbtiLikeType: 'ENFP',
+    inferredZodiac: 'Aries',
+    inferredChineseZodiac: 'Dragon',
+    inferredElement: 'Fire',
+    inferredPlanet: 'Mars',
+    chakraAnalysis: '心轮平衡',
+    coreEnergyInsights: '能量平衡'
+  });
+  const [guidance, setGuidance] = useState<DailyGuidanceResult | undefined>();
+  const [isLoading, setIsLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [energyState, setEnergyState] = useState<DailyEnergyState>({
+    date: new Date(),
+    energyLevel: 3,
+    dominantChakra: 'heart',
+    recommendedCrystal: '白水晶',
+    energyColor: '#3b82f6',
+    mbtiMood: '平衡状态',
+    elementBalance: '和谐平衡'
+  });
+
+  // 获取用户档案
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      setProfileLoading(true);
+      try {
+        // 如果用户已登录，获取其真实档案
+      if (user) {
+          const userProfile = await getUserProfile(user.email);
+          if (userProfile) {
+            setProfile(userProfile);
+            // 用户档案加载后更新能量状态
+            setEnergyState(generateEnergyPrediction(selectedDate, userProfile));
+            setProfileLoading(false);
+            return;
+          }
+        }
+        
+        // 如果用户未登录或没有档案，使用默认档案
+        console.log('👤 使用默认用户档案');
+        const defaultProfile: UserProfileDataOutput = {
+          name: '默认用户',
+          mbtiLikeType: 'ENFP',
+          inferredZodiac: 'Aries',
+          inferredChineseZodiac: 'Dragon',
+          inferredElement: 'Fire',
+          inferredPlanet: 'Mars',
+          chakraAnalysis: '心轮平衡',
+          coreEnergyInsights: '能量平衡'
+        };
+        setProfile(defaultProfile);
+        setEnergyState(generateEnergyPrediction(selectedDate, defaultProfile));
+      } catch (error) {
+          console.error("Error loading user profile:", error);
+        // 发生错误时也使用默认档案
+        const fallbackProfile: UserProfileDataOutput = {
+          name: '临时用户',
+          mbtiLikeType: 'ENFP',
+          inferredZodiac: 'Aries',
+          inferredChineseZodiac: 'Dragon',
+          inferredElement: 'Fire',
+          inferredPlanet: 'Mars',
+          chakraAnalysis: '心轮平衡',
+          coreEnergyInsights: '能量平衡'
+        };
+        setProfile(fallbackProfile);
+        setEnergyState(generateEnergyPrediction(selectedDate, fallbackProfile));
+      } finally {
+        setProfileLoading(false);
+      }
+    };
+    
+    loadUserProfile();
+  }, [user, selectedDate]);
+  
+  // 日期变更时更新能量状态
+  useEffect(() => {
+    if (profile) {
+      setEnergyState(generateEnergyPrediction(selectedDate, profile));
+    }
+  }, [selectedDate, profile]);
+  
+  // 获取日常指导
+  useEffect(() => {
+    if (profile) {
+      fetchGuidanceForDate(selectedDate);
+    }
+  }, [selectedDate, profile]);
+  
+  const fetchGuidanceForDate = async (targetDate: Date) => {
+    if (!profile) return;
+    
+    setIsLoading(true);
+    try {
+      const result = await getDailyGuidance({
+        userProfile: profile,
+        targetDate: format(targetDate, 'yyyy-MM-dd'),
+        language: 'zh'
+      });
+      
+      setGuidance({
+        guidance: result.guidance,
+        meditationPrompt: result.meditationPrompt,
+        date: format(targetDate, 'yyyy-MM-dd'),
+        language: 'zh'
+      });
+    } catch (error) {
+      console.error("Error fetching guidance:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="crystal-calendar-container">
+      <h1 className="crystal-calendar-title">水晶能量日历</h1>
+      
+      <div className="crystal-calendar-content">
+        {/* 左侧边栏 */}
+        <div className="crystal-calendar-sidebar">
+          <PersonalizedCalendar
+            profile={profile}
+            selectedDate={selectedDate}
+            onDateSelect={setSelectedDate}
+          />
+          
+          <Card className="energy-prediction-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center">
+                <Zap className="h-4 w-4 mr-2 text-primary" />
+                今日能量预测
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">总体能量</span>
+                  <div className="energy-indicator">
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <div
+                        key={i}
+                        className={cn(
+                          "energy-indicator-dot",
+                          i < energyState.energyLevel ? "active" : "inactive"
+                        )}
+                      />
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    {chakraIcons[energyState.dominantChakra as keyof typeof chakraIcons] && 
+                      React.createElement(
+                        chakraIcons[energyState.dominantChakra as keyof typeof chakraIcons],
+                        { className: `h-4 w-4 ${chakraColors[energyState.dominantChakra as keyof typeof chakraColors].split(' ')[0]}` }
+                      )
+                    }
+                    <span className="text-sm">主导脉轮: {
+                      energyState.dominantChakra === 'root' ? '海底轮' :
+                      energyState.dominantChakra === 'sacral' ? '脐轮' :
+                      energyState.dominantChakra === 'solarPlexus' ? '太阳神经丛轮' :
+                      energyState.dominantChakra === 'heart' ? '心轮' :
+                      energyState.dominantChakra === 'throat' ? '喉轮' :
+                      energyState.dominantChakra === 'thirdEye' ? '眉心轮' : '顶轮'
+                    }</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Gem className="h-4 w-4 text-primary" />
+                    <span className="text-sm">推荐水晶: {energyState.recommendedCrystal}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-yellow-500" />
+                    <span className="text-sm">情绪倾向: {energyState.mbtiMood}</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* 主内容区域 */}
+        <div className="space-y-6">
+          <Card>
+            <CardContent className="p-6">
+              <Tabs defaultValue="guidance" className="w-full">
+                <TabsList className="grid grid-cols-3 mb-6">
+                  <TabsTrigger value="guidance" className="flex items-center gap-2">
+                    <Lightbulb className="h-4 w-4" />
+                    <span>今日指引</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="meditation" className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4" />
+                    <span>水晶冥想</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="schedule" className="flex items-center gap-2">
+                    <CalendarIcon className="h-4 w-4" />
+                    <span>能量日程</span>
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="guidance" className="crystal-calendar-tab-content">
+                  {isLoading ? (
+                    <div className="flex flex-col items-center justify-center h-64 space-y-4">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      <p>正在连接宇宙能量...</p>
+                    </div>
+                  ) : (
+                    <EnergyInsightDisplay 
+                      guidance={guidance} 
+                      energyState={energyState} 
+                      profile={profile} 
+                    />
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="meditation" className="crystal-calendar-tab-content">
+                  <CrystalMeditation profile={profile} energyState={energyState} />
+                </TabsContent>
+                
+                <TabsContent value="schedule" className="crystal-calendar-tab-content">
+                  <PersonalizedScheduleSuggestion profile={profile} initialDate={selectedDate} />
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+          
+          <div className="crystal-card-grid">
+            <EnergyTrendView profile={profile} />
+            {profileLoading ? (
+              <ProfileSummaryCard.Skeleton />
+            ) : (
+              <ProfileSummaryCard 
+                key="profile-loaded" 
+                profile={profile} 
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // mock 数据

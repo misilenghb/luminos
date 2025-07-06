@@ -6,6 +6,7 @@ import AppLayout from '@/components/layout/AppLayout';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { CreativeWorkshopProvider } from '@/contexts/CreativeWorkshopContext';
+import { ErrorBoundary } from '@/components/ui/error-boundary';
 
 // const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -31,7 +32,9 @@ export default function RootLayout({
           <AuthProvider>
             <CreativeWorkshopProvider>
               <AppLayout>
+                <ErrorBoundary>
                 {children}
+                </ErrorBoundary>
               </AppLayout>
               <Toaster />
             </CreativeWorkshopProvider>

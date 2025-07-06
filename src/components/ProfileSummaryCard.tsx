@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from './ui/skeleton';
 
 interface ProfileSummaryCardProps {
-  profile: UserProfileDataOutput;
+  profile?: UserProfileDataOutput | null;
 }
 
 const extractMbtiType = (description?: string): string | null => {
@@ -32,6 +32,21 @@ const InfoRow = ({ icon: Icon, label, value }: { icon: React.ElementType, label:
 
 const ProfileSummaryCard = ({ profile }: ProfileSummaryCardProps) => {
     const { t } = useLanguage();
+    
+    console.log('🔍 ProfileSummaryCard 接收到的 profile:', profile);
+    
+    // 如果没有用户档案，显示创建提示
+    if (!profile) {
+        console.log('⚠️ ProfileSummaryCard: profile 为 null 或 undefined，显示创建提示');
+        return <ProfileSummaryCard.CreatePrompt />;
+    }
+    
+    // 检测是否为默认用户档案（通过检查 name 属性是否为 '默认用户' 或 '临时用户'）
+    const isDefaultProfile = profile.name === '默认用户' || profile.name === '临时用户';
+    if (isDefaultProfile) {
+        console.log('ℹ️ ProfileSummaryCard: 使用默认用户档案');
+    }
+    
     const mbtiType = extractMbtiType(profile.mbtiLikeType);
     
     return (
@@ -42,7 +57,11 @@ const ProfileSummaryCard = ({ profile }: ProfileSummaryCardProps) => {
                 </Avatar>
                 <div>
                     <CardTitle>{profile.name || t('energyExplorationPage.userProfile.title')}</CardTitle>
-                    <CardDescription>{t('dailyFocusPage.profileCard.description')}</CardDescription>
+                    <CardDescription>
+                        {isDefaultProfile 
+                            ? '默认能量档案（请创建个人档案获取更精准的分析）' 
+                            : t('dailyFocusPage.profileCard.description')}
+                    </CardDescription>
                 </div>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -52,8 +71,12 @@ const ProfileSummaryCard = ({ profile }: ProfileSummaryCardProps) => {
                  <InfoRow icon={Brain} label={t('dailyFocusPage.profileCard.mbti')} value={mbtiType} />
             </CardContent>
             <CardFooter>
-                 <Button asChild className="w-full" variant="outline">
-                    <Link href="/gallery">{t('dailyFocusPage.profileCard.viewFullProfile')}</Link>
+                 <Button asChild className="w-full" variant={isDefaultProfile ? "default" : "outline"}>
+                    <Link href={isDefaultProfile ? "/energy-exploration" : "/gallery"}>
+                        {isDefaultProfile 
+                            ? '创建个人能量档案' 
+                            : t('dailyFocusPage.profileCard.viewFullProfile')}
+                    </Link>
                  </Button>
             </CardFooter>
         </Card>

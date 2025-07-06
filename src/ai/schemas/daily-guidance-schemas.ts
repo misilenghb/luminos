@@ -33,3 +33,15 @@ export const DailyGuidanceOutputSchema = z.object({
   energyReminder: z.string().describe("A concise, thought-provoking energy insight or reminder for the day.")
 });
 export type DailyGuidanceOutput = z.infer<typeof DailyGuidanceOutputSchema>;
+
+export const DailyEnergyStateSchema = z.object({
+  date: z.string().describe("The date for the energy state in ISO format."),
+  energyLevel: z.number().describe("Energy level from 1 to 5."),
+  dominantChakra: z.string().describe("The dominant chakra for the day."),
+  recommendedCrystal: z.string().describe("The recommended crystal for the day."),
+  energyColor: z.string().describe("A hex color code representing the energy."),
+  mbtiMood: z.string().describe("A mood descriptor based on MBTI-like personality."),
+  elementBalance: z.string().describe("A descriptor for the elemental balance."),
+  isSpecialDay: z.boolean().optional().describe("Whether it is a special day."),
+  specialType: z.enum(['birthday', 'zodiac', 'chakra', 'element']).optional().describe("The type of special day."),
+});

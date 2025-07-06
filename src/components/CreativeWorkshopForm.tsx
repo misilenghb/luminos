@@ -107,7 +107,10 @@ const CreativeWorkshopForm: React.FC<CreativeWorkshopFormProps> = ({ onGenerateS
   const watchedForm = useWatch({ control });
 
   useEffect(() => {
-    // 保证 designCategory、overallDesignStyle、mainStones 不为 undefined
+    // Skip update when the form is initializing
+    if (!watchedForm) return;
+    
+    // Create safe object with all required fields
     const safeWatchedForm = {
       ...watchedForm,
       designCategory: watchedForm.designCategory ?? '',
@@ -121,15 +124,21 @@ const CreativeWorkshopForm: React.FC<CreativeWorkshopFormProps> = ({ onGenerateS
           }))
         : [],
     };
-    const currentFormValues = JSON.stringify(safeWatchedForm);
-    const currentContextValues = JSON.stringify(designInput);
-    if (currentFormValues !== currentContextValues) {
+    
+    // Add debouncing to prevent infinite loops
+    const timeoutId = setTimeout(() => {
         setDesignInput(safeWatchedForm);
-    }
-  }, [watchedForm, designInput, setDesignInput]);
+    }, 100);
+    
+    return () => clearTimeout(timeoutId);
+  }, [watchedForm, setDesignInput]);
   
   useEffect(() => {
+    const timeoutId = setTimeout(() => {
     reset(designInput);
+    }, 50);
+    
+    return () => clearTimeout(timeoutId);
   }, [designInput, reset]);
 
   const watchedMainStones = useWatch({ control, name: "mainStones" });

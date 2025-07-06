@@ -72,7 +72,7 @@ const FiveDimensionalEnergyChart: React.FC<FiveDimensionalEnergyChartProps> = ({
   const { language } = useLanguage();
   
   // 【方案一】渐进式信息展示控制
-  const [showAdvancedSections, setShowAdvancedSections] = useState({
+  const [showAdvancedSections, setShowAdvancedSections] = useState<Record<string, boolean>>({
     energyCode: false,        // 能量密码板块
     relationships: false,     // 人际关系板块
     financial: false,         // 财务能量板块
@@ -86,9 +86,9 @@ const FiveDimensionalEnergyChart: React.FC<FiveDimensionalEnergyChartProps> = ({
     const allClosed = Object.values(showAdvancedSections).every(v => !v);
     setShowAdvancedSections(prev => 
       Object.keys(prev).reduce((acc, key) => {
-        acc[key] = allClosed;
+        acc[key as string] = allClosed;
         return acc;
-      }, {} as typeof prev)
+      }, {} as Record<string, boolean>)
     );
   };
   
@@ -1599,7 +1599,18 @@ According to psychological research, healthy individuals should show **moderate 
     const financialScore = calculateFinancialEnergy(financialEnergyAssessment);
     const rhythmScore = calculateLifeRhythmEnergy(lifeRhythm);
     const mbtiType = profileData?.mbtiLikeType || '';
-    const age = profileData?.age || 25;
+    let age = 25;
+    if (profileData && (profileData as any).birthDate) {
+      const birth = new Date((profileData as any).birthDate);
+      if (!isNaN(birth.getTime())) {
+        const now = new Date();
+        age = now.getFullYear() - birth.getFullYear();
+        const m = now.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) {
+          age--;
+        }
+      }
+    }
     
     const advice = [];
     
@@ -2500,8 +2511,9 @@ According to psychological research, healthy individuals should show **moderate 
                         </div>
                         <p className="text-xs text-green-800 font-medium leading-relaxed mb-2">{advice.suggestion}</p>
                         <p className="text-xs text-green-600 mb-2">🌟 {advice.benefit}</p>
-                        {advice.targetImprovement && (
-                          <p className="text-xs text-green-500 italic">📈 {advice.targetImprovement}</p>
+                        {typeof advice === 'object' && advice !== null && 'targetImprovement' in advice &&
+                          typeof (advice as any).targetImprovement === 'string' && (advice as any).targetImprovement && (
+                            <p className="text-xs text-green-500 italic">📈 {(advice as any).targetImprovement}</p>
                         )}
                       </div>
                     ))}

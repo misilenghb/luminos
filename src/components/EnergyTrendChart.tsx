@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, Suspense, useEffect } from 'react';
 import { format, addDays, startOfToday, isSameDay, getDay, startOfWeek, endOfWeek } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +12,30 @@ import { Button } from '@/components/ui/button';
 import { Calendar, TrendingUp, TrendingDown, AlertTriangle, Sparkles, Activity, Moon, Sun, Zap, Target, Heart, Eye, Crown, Mountain, Droplets, Flame, Wind } from 'lucide-react';
 import type { UserProfileDataOutput } from '@/ai/schemas/user-profile-schemas';
 import { cn } from '@/lib/utils';
+import dynamic from 'next/dynamic';
+
+// 简单动态导入所有需要的图表组件
+const LineChart = dynamic(() => import('recharts').then(mod => mod.LineChart), { ssr: false });
+const Line = dynamic(() => import('recharts').then(mod => mod.Line), { ssr: false });
+const XAxis = dynamic(() => import('recharts').then(mod => mod.XAxis), { ssr: false });
+const YAxis = dynamic(() => import('recharts').then(mod => mod.YAxis), { ssr: false });
+const CartesianGrid = dynamic(() => import('recharts').then(mod => mod.CartesianGrid), { ssr: false });
+const Tooltip = dynamic(() => import('recharts').then(mod => mod.Tooltip), { ssr: false });
+const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false });
+const AreaChart = dynamic(() => import('recharts').then(mod => mod.AreaChart), { ssr: false });
+const Area = dynamic(() => import('recharts').then(mod => mod.Area), { ssr: false });
+const BarChart = dynamic(() => import('recharts').then(mod => mod.BarChart), { ssr: false });
+const Bar = dynamic(() => import('recharts').then(mod => mod.Bar), { ssr: false });
+const PieChart = dynamic(() => import('recharts').then(mod => mod.PieChart), { ssr: false });
+const Pie = dynamic(() => import('recharts').then(mod => mod.Pie), { ssr: false });
+const Cell = dynamic(() => import('recharts').then(mod => mod.Cell), { ssr: false });
+
+// 图表加载占位符组件
+const ChartLoading = () => (
+  <div className="h-64 flex items-center justify-center">
+    <p className="text-muted-foreground">加载图表中...</p>
+  </div>
+);
 
 // 脉轮图标映射
 const chakraIcons = {
@@ -40,7 +63,7 @@ const chakraColors = {
 const energyLevelColors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#10b981'];
 
 // 生成能量数据的函数
-const generateEnergyData = (profile?: UserProfileDataOutput, days: number = 30) => {
+const generateEnergyData = (profile?: UserProfileDataOutput | null, days: number = 30) => {
   const today = startOfToday();
   const data = [];
   
@@ -49,8 +72,19 @@ const generateEnergyData = (profile?: UserProfileDataOutput, days: number = 30) 
     const dayOfWeek = getDay(date);
     const dayOfMonth = date.getDate();
     
-    // 基于用户画像的个性化能量计算
-    const mbtiType = profile?.mbtiLikeType?.match(/\b([IE][NS][TF][JP])\b/)?.[0];
+    // 安全地获取 MBTI 类型
+    let mbtiType: string | undefined;
+    try {
+      if (profile && profile.mbtiLikeType) {
+        const match = profile.mbtiLikeType.match(/\b([IE][NS][TF][JP])\b/);
+        if (match && match[0]) {
+          mbtiType = match[0];
+        }
+      }
+    } catch (e) {
+      console.error("Error extracting MBTI type:", e);
+    }
+    
     const isIntrovert = mbtiType?.startsWith('I');
     
     // 基础能量计算
@@ -67,8 +101,12 @@ const generateEnergyData = (profile?: UserProfileDataOutput, days: number = 30) 
     const monthProgress = dayOfMonth / 30;
     baseEnergy += Math.sin(monthProgress * Math.PI * 2) * 0.5;
     
-    // 添加随机波动
-    baseEnergy += (Math.random() - 0.5) * 0.8;
+    // 添加确定性波动 (基于日期，而不是随机数)
+    // 使用日期的各个部分生成一个确定性的波动值
+    const deterministicVariation = 
+      Math.sin((dayOfMonth + dayOfWeek) * 0.5) * 0.4 + 
+      Math.cos(dayOfMonth * 0.3) * 0.3;
+    baseEnergy += deterministicVariation;
     
     // 限制在1-5范围内
     const energyLevel = Math.max(1, Math.min(5, Math.round(baseEnergy * 10) / 10));
@@ -155,16 +193,22 @@ const analyzeChakraDistribution = (data: any[]) => {
 };
 
 interface EnergyTrendChartProps {
-  profile?: UserProfileDataOutput;
+  profile?: UserProfileDataOutput | null;
   className?: string;
 }
 
 const EnergyTrendChart: React.FC<EnergyTrendChartProps> = ({ profile, className }) => {
   const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d'>('7d');
+  const [isClient, setIsClient] = useState(false);
+  
+  // 确保只在客户端渲染
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   
   const data = useMemo(() => {
     return generateEnergyData(profile, selectedPeriod === '7d' ? 7 : 30);
-  }, [profile, selectedPeriod]);
+  }, [profile, selectedPeriod, isClient]);
   
   const trendAnalysis = useMemo(() => analyzeEnergyTrends(data), [data]);
   const chakraDistribution = useMemo(() => analyzeChakraDistribution(data), [data]);
@@ -175,6 +219,15 @@ const EnergyTrendChart: React.FC<EnergyTrendChartProps> = ({ profile, className 
     }
     return [value, name];
   };
+
+  // 在客户端渲染之前显示加载状态
+  if (!isClient) {
+    return (
+      <div className={cn("space-y-6", className)}>
+        <ChartLoading />
+      </div>
+    );
+  }
 
   return (
     <div className={cn("space-y-6", className)}>

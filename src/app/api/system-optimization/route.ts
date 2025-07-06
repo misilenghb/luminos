@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { mlPredictionCache } from '../../../lib/ml-prediction-cache';
 import { dynamicPricingEngine } from '../../../lib/dynamic-pricing-engine';
@@ -257,7 +257,7 @@ async function getPhase3OptimizationMetrics() {
     return {
       enabled: false,
       status: 'error',
-      error: error.message || '获取第三阶段指标时发生错误'
+      error: error instanceof Error ? error.message : '获取第三阶段指标时发生错误'
     };
   }
 }
