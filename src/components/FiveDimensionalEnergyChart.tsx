@@ -69,7 +69,7 @@ const FiveDimensionalEnergyChart: React.FC<FiveDimensionalEnergyChartProps> = ({
   financialEnergyAssessment,
   emotionalIntelligenceAssessment
 }) => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   
   // 【方案一】渐进式信息展示控制
   const [showAdvancedSections, setShowAdvancedSections] = useState<Record<string, boolean>>({
@@ -568,7 +568,7 @@ const FiveDimensionalEnergyChart: React.FC<FiveDimensionalEnergyChartProps> = ({
         }
       },
       {
-        dimension: language === 'zh' ? '🔥 元素强度' : '🔥 Elemental Power',
+        dimension: language === 'zh' ? '🔥 元素属性' : '🔥 Elemental Property',
         energy: elementScore,
         color: '#ef4444',
         description: language === 'zh' ? '主导元素的影响力强度' : 'Influence strength of dominant element',
@@ -655,11 +655,11 @@ const FiveDimensionalEnergyChart: React.FC<FiveDimensionalEnergyChartProps> = ({
 
   // 获取能量等级
   const getEnergyLevel = (energy: number) => {
-    if (energy >= 85) return { label: '卓越', color: 'bg-green-500' };
-    if (energy >= 70) return { label: '良好', color: 'bg-blue-500' };
-    if (energy >= 55) return { label: '平衡', color: 'bg-yellow-500' };
-    if (energy >= 40) return { label: '待提升', color: 'bg-orange-500' };
-    return { label: '需关注', color: 'bg-red-500' };
+    if (energy >= 85) return { label: '卓越', color: 'bg-primary' };
+    if (energy >= 70) return { label: '良好', color: 'bg-primary' };
+    if (energy >= 55) return { label: '平衡', color: 'bg-accent' };
+    if (energy >= 40) return { label: '待提升', color: 'bg-muted' };
+    return { label: '需关注', color: 'bg-destructive' };
   };
 
   // 生成立即可行的行动建议
@@ -1001,26 +1001,28 @@ const FiveDimensionalEnergyChart: React.FC<FiveDimensionalEnergyChartProps> = ({
   // 获取维度对应的文本标签
   const getDimensionLabel = (dimension: string, data: FiveDimensionalData) => {
     if (!profileData) return '';
-    
-    const dimensionName = dimension.includes('MBTI') || dimension.includes('人格') 
-      ? 'mbti' 
+
+    const dimensionName = dimension.includes('MBTI') || dimension.includes('人格')
+      ? 'mbti'
       : dimension.includes('星座') || dimension.includes('Zodiac')
       ? 'zodiac'
       : dimension.includes('脉轮') || dimension.includes('Chakra')
       ? 'chakra'
-      : dimension.includes('五行') || dimension.includes('Elemental')
+      : dimension.includes('元素') || dimension.includes('Elemental')
       ? 'element'
       : dimension.includes('行星') || dimension.includes('Planetary')
       ? 'planet'
+      : dimension.includes('生命密码') || dimension.includes('Life Path')
+      ? 'lifepath'
       : '';
 
     switch (dimensionName) {
       case 'mbti':
         return profileData.mbtiLikeType?.match(/\b([IE][NS][TF][JP])\b/)?.[0] || 'XXXX';
-      
+
       case 'zodiac':
         return profileData.inferredZodiac || '未知';
-      
+
       case 'chakra':
         // 找出最需要平衡的脉轮
         if (chakraScores) {
@@ -1033,22 +1035,48 @@ const FiveDimensionalEnergyChart: React.FC<FiveDimensionalEnergyChartProps> = ({
             { name: '眉心轮', value: chakraScores.thirdEyeChakraFocus },
             { name: '顶轮', value: chakraScores.crownChakraFocus }
           ].filter(chakra => chakra.value !== undefined && chakra.value !== null && !isNaN(chakra.value));
-          
+
           if (chakraValues.length > 0) {
-            const lowestChakra = chakraValues.reduce((min, current) => 
+            const lowestChakra = chakraValues.reduce((min, current) =>
               current.value < min.value ? current : min
             );
             return lowestChakra.name;
           }
         }
         return '平衡';
-      
+
       case 'element':
         return profileData.inferredElement || '未知';
-      
+
       case 'planet':
         return profileData.inferredPlanet || '太阳';
-      
+
+      case 'lifepath':
+        // 计算生命路径数字
+        const lifePathNumber = calculateLifePathNumber(profileData?.name ? '1990-01-01' : undefined);
+        // 将能量分数转换为生命路径数字（1-9, 11, 22, 33）
+        const energyToLifePathMap: Record<number, number> = {
+          85: 1, 70: 2, 80: 3, 65: 4, 90: 5, 75: 6, 82: 7, 78: 8, 72: 9,
+          95: 11, 88: 22, 92: 33
+        };
+
+        // 根据能量分数找到对应的生命路径数字
+        const reverseMap = Object.entries(energyToLifePathMap).find(([energy, _]) =>
+          parseInt(energy) === Math.round(data.energy)
+        );
+
+        if (reverseMap) {
+          return reverseMap[1].toString();
+        }
+
+        // 如果没有精确匹配，根据能量范围估算
+        if (data.energy >= 90) return '5';
+        if (data.energy >= 85) return '1';
+        if (data.energy >= 80) return '3';
+        if (data.energy >= 75) return '6';
+        if (data.energy >= 70) return '2';
+        return '4';
+
       default:
         return data.energy.toString();
     }
@@ -1737,7 +1765,7 @@ According to psychological research, healthy individuals should show **moderate 
       recommendations.push({
           name: language === 'zh' ? '红玛瑙' : 'Red Agate',
           icon: '🔴',
-          color: 'bg-red-500',
+          color: 'bg-primary',
           energyType: language === 'zh' ? '身体活力' : 'Physical Vitality',
           description: language === 'zh' ? '增强体力和行动力的守护石，激发生命活力' : 'Guardian stone that enhances stamina and action power, ignites life vitality',
           personalEffect: language === 'zh' ? `你的身体能量${weakestScore}分偏低，红玛瑙将帮助你恢复活力，增强体能和耐力` : `Your physical energy of ${weakestScore} is low, Red Agate will help restore vitality and enhance stamina`,
@@ -1775,13 +1803,13 @@ According to psychological research, healthy individuals should show **moderate 
           {
             name: language === 'zh' ? '黄水晶' : 'Citrine',
             icon: '💛',
-            color: 'bg-yellow-500',
+            color: 'bg-primary',
             description: language === 'zh' ? '财富磁石，吸引正财偏财，改善财运' : 'Wealth magnet, attracts both regular and windfall wealth'
           } : 
           {
         name: language === 'zh' ? '绿幽灵' : 'Green Phantom',
         icon: '💚',
-        color: 'bg-green-500',
+        color: 'bg-primary',
             description: language === 'zh' ? '事业财运石，象征财富的层层累积' : 'Career and wealth stone, symbolizes layered wealth accumulation'
           };
           
@@ -1805,7 +1833,7 @@ According to psychological research, healthy individuals should show **moderate 
           {
         name: language === 'zh' ? '紫水晶' : 'Amethyst',
         icon: '💜',
-        color: 'bg-purple-500',
+        color: 'bg-primary',
             description: language === 'zh' ? '智慧与冷静之石，平衡情绪波动' : 'Stone of wisdom and calm, balances emotional fluctuations'
           };
           
@@ -1853,7 +1881,7 @@ According to psychological research, healthy individuals should show **moderate 
         recommendations.push({
           name: language === 'zh' ? '萤石' : 'Fluorite',
           icon: '🔮',
-          color: 'bg-blue-400',
+          color: 'bg-primary',
           energyType: language === 'zh' ? '创意灵感' : 'Creative Inspiration',
           description: language === 'zh' ? '智慧与专注之石，激发创造力和直觉洞察' : 'Stone of wisdom and focus, stimulates creativity and intuitive insight',
           personalEffect: language === 'zh' ? '基于你的直觉感知特质，萤石将帮助你将创意转化为实际成果' : 'Based on your intuitive perceiving traits, Fluorite will help transform creativity into tangible results',
@@ -1898,7 +1926,7 @@ According to psychological research, healthy individuals should show **moderate 
   // 确保有有效数据
   if (fiveDimensionalData.length === 0) {
     return (
-      <Card className={`w-full max-w-4xl mx-auto bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200 ${className}`}>
+      <Card className={`w-full max-w-4xl mx-auto quantum-card ${className}`}>
         <CardContent className="p-6">
           <div className="text-center py-8">
             <p className="text-gray-500">
@@ -1916,37 +1944,33 @@ According to psychological research, healthy individuals should show **moderate 
     <Card className={`w-full ${className}`}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          {hasEnhancedData 
-            ? (language === 'zh' ? '🌟 你的八维能量画像' : '🌟 Your Eight-Dimensional Energy Profile')
-            : (language === 'zh' ? '🌟 你的个人特质分析' : '🌟 Your Personal Trait Analysis')
+          {hasEnhancedData
+            ? t('energyExplorationPage.fiveDimensional.titleEnhanced')
+            : t('energyExplorationPage.fiveDimensional.title')
           }
           {hasEnhancedData && (
-            <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs ml-2">
-              {language === 'zh' ? '增强版' : 'Enhanced'}
+            <Badge className="bg-primary text-white text-xs ml-2">
+              {t('energyExplorationPage.fiveDimensional.enhanced')}
             </Badge>
           )}
         </CardTitle>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          {hasEnhancedData 
-            ? (language === 'zh' 
-              ? '基于增强评估的八维能量分析，涵盖人格、星座、脉轮、五行、行星、生命密码、身体能量、社交能量，为你提供更全面深入的自我认知' 
-              : 'Eight-dimensional energy analysis based on enhanced assessment, covering personality, zodiac, chakra, elements, planets, life path, physical energy, and social energy for comprehensive self-understanding')
-            : (language === 'zh' 
-              ? '就像体检报告一样，这里显示你在性格、情绪、身体、天赋、运气五个方面的状态，帮你更了解自己' 
-              : 'Like a health checkup, this shows your status in personality, emotions, body, talents, and luck to help you understand yourself better')
+          {hasEnhancedData
+            ? t('energyExplorationPage.fiveDimensional.descriptionEnhanced')
+            : t('energyExplorationPage.fiveDimensional.description')
           }
         </p>
       </CardHeader>
       <CardContent>
         {/* 【方案一 & 方案二】控制面板 */}
-        <div className="mb-6 p-4 bg-gradient-to-r from-slate-50 to-gray-50 rounded-lg border border-slate-200">
+        <div className="mb-6 p-4 hierarchy-secondary rounded-lg border border-border">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             {/* 左侧：显示模式控制 */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <Settings className="h-4 w-4 text-slate-600" />
+                <Settings className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium text-slate-700">
-                  {language === 'zh' ? '显示设置' : 'Display Settings'}
+                  {t('energyExplorationPage.fiveDimensional.displaySettings')}
                 </span>
               </div>
               
@@ -1960,7 +1984,7 @@ According to psychological research, healthy individuals should show **moderate 
                 >
                   {compactMode ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                   <span className="ml-1 text-xs">
-                    {compactMode ? (language === 'zh' ? '详细' : 'Detailed') : (language === 'zh' ? '简洁' : 'Compact')}
+                    {compactMode ? t('energyExplorationPage.fiveDimensional.detailedMode') : t('energyExplorationPage.fiveDimensional.compactMode')}
                   </span>
                 </Button>
               </div>
@@ -1993,17 +2017,17 @@ According to psychological research, healthy individuals should show **moderate 
           </div>
           
           {/* 信息层级指示器 */}
-          <div className="mt-3 flex items-center gap-1 text-xs text-slate-500">
+          <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
             <div className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <div className="w-2 h-2 bg-primary rounded-full"></div>
               <span>{language === 'zh' ? '核心分析' : 'Core Analysis'}</span>
             </div>
             <div className="flex items-center gap-1 ml-3">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+              <div className="w-2 h-2 bg-primary rounded-full"></div>
               <span>{language === 'zh' ? '深度洞察' : 'Deep Insights'}</span>
             </div>
             <div className="flex items-center gap-1 ml-3">
-              <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+              <div className="w-2 h-2 bg-primary rounded-full"></div>
               <span>{language === 'zh' ? '专属建议' : 'Personalized Tips'}</span>
             </div>
           </div>
@@ -2044,11 +2068,11 @@ According to psychological research, healthy individuals should show **moderate 
             const level = getEnergyLevel(dimension.energy);
             const dimensionLabel = getDimensionLabel(dimension.dimension, dimension);
             return (
-              <div key={index} className={`flex items-center gap-3 rounded-lg bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-150 transition-all ${compactMode ? 'p-3' : 'p-4'}`}>
+              <div key={index} className={`flex items-center gap-3 rounded-lg hierarchy-secondary hover:bg-accent/10 transition-all ${compactMode ? 'p-3' : 'p-4'}`}>
                 <div className="text-2xl">{dimension.icon}</div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
-                    <p className="font-semibold text-gray-800">{dimension.dimension}</p>
+                    <p className="font-semibold text-foreground">{dimension.dimension.replace(/^[🧠⭐🔥🌟🔢👥💎]\s*/, '')}</p>
                     <Badge className={`${level.color} text-white`}>
                       {dimensionLabel}
                     </Badge>
@@ -2062,15 +2086,15 @@ According to psychological research, healthy individuals should show **moderate 
 
         {/* 简单总结 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
+          <div className="p-4 quantum-card">
             <div className="text-center">
-              <h4 className="font-bold text-2xl text-purple-600 mb-1">
+              <h4 className="font-bold text-2xl text-primary mb-1">
                 {overallEnergy}/100
               </h4>
-              <p className="font-semibold text-gray-800 text-sm mb-2">
+              <p className="font-semibold text-foreground text-sm mb-2">
                 {language === 'zh' ? '😊 整体状态' : '😊 Overall Status'}
               </p>
-              <p className="text-xs text-purple-600 mb-2">
+              <p className="text-xs text-muted-foreground mb-2">
                 {language === 'zh' ? '各方面的综合得分' : 'Combined score across all areas'}
               </p>
               <Badge className={`${getEnergyLevel(overallEnergy).color} text-white text-xs`}>
@@ -2079,15 +2103,15 @@ According to psychological research, healthy individuals should show **moderate 
             </div>
           </div>
           
-          <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+          <div className="p-4 quantum-card">
             <div className="text-center">
-              <h4 className="font-bold text-2xl text-blue-600 mb-1">
+              <h4 className="font-bold text-2xl text-primary mb-1">
                 {synergyAnalysis.balanceScore}/100
               </h4>
-              <p className="font-semibold text-gray-800 text-sm mb-2">
+              <p className="font-semibold text-foreground text-sm mb-2">
                 {language === 'zh' ? '⚖️ 平衡程度' : '⚖️ Balance Level'}
               </p>
-              <p className="text-xs text-blue-600 mb-2">
+              <p className="text-xs text-muted-foreground mb-2">
                 {language === 'zh' ? '各方面发展是否均匀' : 'How evenly developed all areas are'}
               </p>
               <Badge className={`${getEnergyLevel(synergyAnalysis.balanceScore).color} text-white text-xs`}>
@@ -2096,18 +2120,18 @@ According to psychological research, healthy individuals should show **moderate 
             </div>
           </div>
           
-          <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
+          <div className="p-4 quantum-card">
             <div className="text-center">
-              <h4 className="font-bold text-2xl text-green-600 mb-1">
+              <h4 className="font-bold text-2xl text-primary mb-1">
                 {synergyAnalysis.synergyIndex}/100
               </h4>
               <p className="font-semibold text-gray-800 text-sm mb-2">
                 {language === 'zh' ? '🤝 配合度' : '🤝 Synergy Level'}
               </p>
-              <p className="text-xs text-green-600 mb-2">
+              <p className="text-xs text-muted-foreground mb-2">
                 {language === 'zh' ? '不同特质间的互补程度' : 'How well different traits complement each other'}
               </p>
-              <Badge className="bg-green-500 text-white text-xs">
+              <Badge className="bg-primary text-white text-xs">
                 {synergyAnalysis.developmentPhase}
               </Badge>
             </div>
@@ -2115,9 +2139,9 @@ According to psychological research, healthy individuals should show **moderate 
         </div>
 
         {/* 给你的专属建议 */}
-        <div className="p-6 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 rounded-lg border border-indigo-200 mb-6">
+        <div className="p-6 quantum-card mb-6">
           <div className="text-center mb-6">
-            <h4 className="font-bold text-xl text-indigo-800 mb-2 flex items-center justify-center gap-2">
+            <h4 className="font-bold text-xl heading-enhanced mb-2 flex items-center justify-center gap-2">
               <TrendingUp className="h-5 w-5" />
               {language === 'zh' ? '💡 给你的专属建议' : '💡 Suggestions Just For You'}
             </h4>
@@ -2133,28 +2157,28 @@ According to psychological research, healthy individuals should show **moderate 
 
           {/* 今天就能做的小事 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="p-4 bg-white rounded-lg border border-blue-200 shadow-sm">
-              <h5 className="font-bold text-blue-800 mb-3 flex items-center gap-2">
+            <div className="p-4 hierarchy-secondary rounded-lg border border-border shadow-sm">
+              <h5 className="font-bold text-foreground mb-3 flex items-center gap-2">
                 <Target className="h-5 w-5" />
                 {language === 'zh' ? '🎯 今天就能做的小事' : '🎯 Small Things You Can Do Today'}
               </h5>
-              <p className="text-xs text-blue-600 mb-3">
+              <p className="text-xs text-muted-foreground mb-3">
                 {language === 'zh' ? '简单易行，马上就能开始！' : 'Simple and easy, you can start right now!'}
               </p>
               <div className="space-y-3">
                 {generateImmediateActions().map((action, i) => (
-                  <div key={i} className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
-                    <div className="flex-shrink-0 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                  <div key={i} className="flex items-start gap-3 p-3 hierarchy-tertiary rounded-lg">
+                    <div className="flex-shrink-0 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-xs font-bold">
                       {i + 1}
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium text-blue-900 text-sm mb-1">{action.title}</p>
-                      <p className="text-xs text-blue-700 leading-relaxed mb-1">{action.description}</p>
+                      <p className="font-medium text-foreground text-sm mb-1">{action.title}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed mb-1">{action.description}</p>
                       <div className="flex items-center justify-between">
-                        <p className="text-xs text-blue-600 font-medium">{action.timeCommitment}</p>
+                        <p className="text-xs text-muted-foreground font-medium">{action.timeCommitment}</p>
                       </div>
                       {action.tip && (
-                        <p className="text-xs text-blue-500 mt-2 bg-blue-100 p-2 rounded italic">{action.tip}</p>
+                        <p className="text-xs text-muted-foreground mt-2 hierarchy-quaternary p-2 rounded italic">{action.tip}</p>
                       )}
                     </div>
                   </div>
@@ -2168,19 +2192,19 @@ According to psychological research, healthy individuals should show **moderate 
               onOpenChange={(open) => setShowAdvancedSections(prev => ({...prev, weeklyGoals: open}))}
             >
               <CollapsibleTrigger asChild>
-                <Button variant="outline" className="w-full mb-4 p-3 h-auto hover:bg-green-50 border-green-200">
+                <Button variant="outline" className="w-full mb-4 p-3 h-auto">
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-3">
-                      <Lightbulb className="h-4 w-4 text-green-600" />
+                      <Lightbulb className="h-4 w-4 text-primary" />
                       <div className="text-left">
-                        <div className="font-semibold text-green-800">
+                        <div className="font-semibold text-foreground">
                           {language === 'zh' ? '📅 本周习惯养成' : '📅 Weekly Habits'}
                         </div>
-                        <div className="text-xs text-green-600 mt-1">
+                        <div className="text-xs text-muted-foreground mt-1">
                           {language === 'zh' ? '坚持一周，发现明显变化' : 'Stick for a week, notice clear changes'}
                         </div>
                       </div>
-                      <Badge className="bg-green-500 text-white text-xs">
+                      <Badge className="bg-primary text-white text-xs">
                         {language === 'zh' ? '专属建议' : 'Personalized'}
                       </Badge>
                     </div>
@@ -2189,27 +2213,27 @@ According to psychological research, healthy individuals should show **moderate 
                 </Button>
               </CollapsibleTrigger>
               <CollapsibleContent>
-            <div className="p-4 bg-white rounded-lg border border-green-200 shadow-sm">
-              <h5 className="font-bold text-green-800 mb-3 flex items-center gap-2">
+            <div className="p-4 hierarchy-secondary rounded-lg border border-border shadow-sm">
+              <h5 className="font-bold text-foreground mb-3 flex items-center gap-2">
                 <Lightbulb className="h-5 w-5" />
                 {language === 'zh' ? '📅 这周要培养的好习惯' : '📅 Good Habits to Develop This Week'}
               </h5>
-              <p className="text-xs text-green-600 mb-3">
+              <p className="text-xs text-muted-foreground mb-3">
                 {language === 'zh' ? '坚持一周，你会发现明显的变化！' : 'Stick to it for a week and you\'ll notice clear changes!'}
               </p>
               <div className="space-y-3">
                 {generateWeeklyGoals().map((goal, i) => (
-                  <div key={i} className="p-3 bg-green-50 rounded-lg">
+                  <div key={i} className="p-3 hierarchy-tertiary rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="font-medium text-green-900 text-sm">{goal.area}</p>
-                      <Badge className="bg-green-500 text-white text-xs">{goal.difficulty}</Badge>
+                      <p className="font-medium text-foreground text-sm">{goal.area}</p>
+                      <Badge className="bg-primary text-white text-xs">{goal.difficulty}</Badge>
                     </div>
-                    <p className="text-xs text-green-700 leading-relaxed mb-2">{goal.goal}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed mb-2">{goal.goal}</p>
                     {goal.method && (
-                      <p className="text-xs text-green-600 mb-2 bg-green-100 p-2 rounded">{goal.method}</p>
+                      <p className="text-xs text-muted-foreground mb-2 hierarchy-quaternary p-2 rounded">{goal.method}</p>
                     )}
                     {goal.benefit && (
-                      <p className="text-xs text-green-500 font-medium italic">{goal.benefit}</p>
+                      <p className="text-xs text-foreground font-medium italic">{goal.benefit}</p>
                     )}
                   </div>
                 ))}
@@ -2220,29 +2244,29 @@ According to psychological research, healthy individuals should show **moderate 
           </div>
 
                   {/* 简单了解你自己 */}
-        <div className="p-4 bg-gradient-to-r from-violet-100 to-purple-100 rounded-lg border border-violet-200">
-          <h5 className="font-bold text-violet-800 mb-3 flex items-center gap-2">
+        <div className="p-4 quantum-card">
+          <h5 className="font-bold text-foreground mb-3 flex items-center gap-2">
             <Brain className="h-5 w-5" />
             {language === 'zh' ? '🎭 简单了解你自己' : '🎭 Simply Understanding Yourself'}
           </h5>
-          <p className="text-sm text-violet-600 mb-4">
+          <p className="text-sm text-muted-foreground mb-4">
             {language === 'zh' ? '用三句话概括你的性格特点，让你更了解自己' : 'Summarize your personality traits in three sentences to help you understand yourself better'}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-3 bg-violet-50 rounded-lg">
-              <div className="text-lg font-bold text-violet-600 mb-1">{getPersonalityInsight().drive}</div>
-              <p className="text-xs text-violet-700 mb-2">{language === 'zh' ? '💪 内心动力' : '💪 Inner Motivation'}</p>
-              <p className="text-xs text-violet-600 leading-relaxed">{getPersonalityInsight().description}</p>
+            <div className="text-center p-3 hierarchy-tertiary rounded-lg">
+              <div className="text-lg font-bold text-primary mb-1">{getPersonalityInsight().drive}</div>
+              <p className="text-xs text-muted-foreground mb-2">{language === 'zh' ? '💪 内心动力' : '💪 Inner Motivation'}</p>
+              <p className="text-xs text-foreground leading-relaxed">{getPersonalityInsight().description}</p>
             </div>
-            <div className="text-center p-3 bg-violet-50 rounded-lg">
-              <div className="text-lg font-bold text-violet-600 mb-1">{getEnergyStyle().style}</div>
-              <p className="text-xs text-violet-700 mb-2">{language === 'zh' ? '🎨 做事风格' : '🎨 Working Style'}</p>
-              <p className="text-xs text-violet-600 leading-relaxed">{getEnergyStyle().description}</p>
+            <div className="text-center p-3 hierarchy-tertiary rounded-lg">
+              <div className="text-lg font-bold text-primary mb-1">{getEnergyStyle().style}</div>
+              <p className="text-xs text-muted-foreground mb-2">{language === 'zh' ? '🎨 做事风格' : '🎨 Working Style'}</p>
+              <p className="text-xs text-foreground leading-relaxed">{getEnergyStyle().description}</p>
             </div>
-            <div className="text-center p-3 bg-violet-50 rounded-lg">
-              <div className="text-lg font-bold text-violet-600 mb-1">{getGrowthPhase().phase}</div>
-              <p className="text-xs text-violet-700 mb-2">{language === 'zh' ? '📈 当前状态' : '📈 Current Status'}</p>
-              <p className="text-xs text-violet-600 leading-relaxed">{getGrowthPhase().description}</p>
+            <div className="text-center p-3 hierarchy-tertiary rounded-lg">
+              <div className="text-lg font-bold text-primary mb-1">{getGrowthPhase().phase}</div>
+              <p className="text-xs text-muted-foreground mb-2">{language === 'zh' ? '📈 当前状态' : '📈 Current Status'}</p>
+              <p className="text-xs text-foreground leading-relaxed">{getGrowthPhase().description}</p>
             </div>
           </div>
         </div>
@@ -2257,7 +2281,7 @@ According to psychological research, healthy individuals should show **moderate 
             >
               <div className="mb-4">
                 <CollapsibleTrigger asChild>
-                  <Button variant="outline" className="w-full flex items-center justify-between p-4 h-auto hover:bg-amber-50 border-amber-200">
+                  <Button variant="outline" className="w-full flex items-center justify-between p-4 h-auto">
                     <div className="flex items-center gap-3">
                       <Key className="h-5 w-5 text-amber-600" />
                       <div className="text-left">
@@ -2277,13 +2301,13 @@ According to psychological research, healthy individuals should show **moderate 
                 </CollapsibleTrigger>
               </div>
               <CollapsibleContent>
-            <div className="p-6 bg-gradient-to-r from-amber-50 via-orange-50 to-rose-50 rounded-lg border border-amber-200 mb-6">
+            <div className="p-6 quantum-card mb-6">
               <div className="text-center mb-6">
-                <h4 className="font-bold text-xl text-amber-800 mb-2 flex items-center justify-center gap-2">
+                <h4 className="font-bold text-xl heading-enhanced mb-2 flex items-center justify-center gap-2">
                   <Key className="h-5 w-5" />
                   {language === 'zh' ? '🔮 你的专属能量密码' : '🔮 Your Exclusive Energy Code'}
                 </h4>
-                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white mb-3">
+                <Badge className="bg-primary text-white mb-3">
                   {language === 'zh' ? '8维专享' : '8D Exclusive'}
                 </Badge>
                 <p className="text-sm text-amber-700 leading-relaxed mb-4">
@@ -2294,31 +2318,31 @@ According to psychological research, healthy individuals should show **moderate 
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-4 bg-white rounded-lg border border-amber-200 shadow-sm">
-                  <h5 className="font-bold text-amber-800 mb-3 flex items-center gap-2">
+                <div className="p-4 hierarchy-secondary rounded-lg border border-border shadow-sm">
+                  <h5 className="font-bold text-foreground mb-3 flex items-center gap-2">
                     <Sparkles className="h-5 w-5" />
                     {language === 'zh' ? '🌟 你的能量原型' : '🌟 Your Energy Archetype'}
                   </h5>
-                  <div className="text-center p-4 bg-amber-50 rounded-lg mb-3">
+                  <div className="text-center p-4 hierarchy-tertiary rounded-lg mb-3">
                     <div className="text-2xl font-bold text-amber-600 mb-2">{generateEnergyArchetype()}</div>
                     <p className="text-sm text-amber-700">{generateArchetypeDescription()}</p>
                   </div>
                   <p className="text-xs text-amber-600 leading-relaxed">{generateArchetypeStrengths()}</p>
                 </div>
 
-                <div className="p-4 bg-white rounded-lg border border-orange-200 shadow-sm">
-                  <h5 className="font-bold text-orange-800 mb-3 flex items-center gap-2">
+                <div className="p-4 hierarchy-secondary rounded-lg border border-border shadow-sm">
+                  <h5 className="font-bold text-foreground mb-3 flex items-center gap-2">
                     <Code className="h-5 w-5" />
                     {language === 'zh' ? '🔢 你的能量数字' : '🔢 Your Energy Numbers'}
                   </h5>
                   <div className="space-y-3">
                     {generateEnergyNumbers().map((number, i) => (
-                      <div key={i} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                      <div key={i} className="flex items-center justify-between p-3 hierarchy-tertiary rounded-lg">
                         <div>
-                          <p className="font-medium text-orange-900 text-sm">{number.name}</p>
-                          <p className="text-xs text-orange-700">{number.meaning}</p>
+                          <p className="font-medium text-foreground text-sm">{number.name}</p>
+                          <p className="text-xs text-muted-foreground">{number.meaning}</p>
                         </div>
-                        <div className="text-xl font-bold text-orange-600">{number.value}</div>
+                        <div className="text-xl font-bold text-primary">{number.value}</div>
                       </div>
                     ))}
                   </div>
@@ -2335,7 +2359,7 @@ According to psychological research, healthy individuals should show **moderate 
             >
               <div className="mb-4">
                 <CollapsibleTrigger asChild>
-                  <Button variant="outline" className="w-full flex items-center justify-between p-4 h-auto hover:bg-pink-50 border-pink-200">
+                  <Button variant="outline" className="w-full flex items-center justify-between p-4 h-auto">
                     <div className="flex items-center gap-3">
                       <Users className="h-5 w-5 text-pink-600" />
                       <div className="text-left">
@@ -2355,13 +2379,13 @@ According to psychological research, healthy individuals should show **moderate 
                 </CollapsibleTrigger>
               </div>
               <CollapsibleContent>
-            <div className="p-6 bg-gradient-to-r from-pink-50 via-rose-50 to-red-50 rounded-lg border border-pink-200 mb-6">
+            <div className="p-6 quantum-card mb-6">
               <div className="text-center mb-6">
-                <h4 className="font-bold text-xl text-pink-800 mb-2 flex items-center justify-center gap-2">
+                <h4 className="font-bold text-xl heading-enhanced mb-2 flex items-center justify-center gap-2">
                   <Users className="h-5 w-5" />
                   {language === 'zh' ? '💝 人际关系能量图谱' : '💝 Interpersonal Energy Map'}
                 </h4>
-                <Badge className="bg-gradient-to-r from-pink-500 to-rose-500 text-white mb-3">
+                <Badge className="bg-primary text-white mb-3">
                   {language === 'zh' ? '基于社交能量分析' : 'Based on Social Energy Analysis'}
                 </Badge>
                 <p className="text-sm text-pink-700 leading-relaxed mb-4">
@@ -2372,36 +2396,36 @@ According to psychological research, healthy individuals should show **moderate 
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 bg-white rounded-lg border border-pink-200 shadow-sm">
-                  <h5 className="font-bold text-pink-800 mb-3 text-center">
+                <div className="p-4 hierarchy-secondary rounded-lg border border-border shadow-sm">
+                  <h5 className="font-bold text-foreground mb-3 text-center">
                     {language === 'zh' ? '🤝 社交风格' : '🤝 Social Style'}
                   </h5>
-                  <div className="text-center p-3 bg-pink-50 rounded-lg">
+                  <div className="text-center p-3 hierarchy-tertiary rounded-lg">
                     <div className="text-lg font-bold text-pink-600 mb-2">{getSocialStyle()}</div>
                     <p className="text-xs text-pink-700 leading-relaxed">{getSocialStyleDescription()}</p>
                   </div>
                 </div>
 
-                <div className="p-4 bg-white rounded-lg border border-rose-200 shadow-sm">
-                  <h5 className="font-bold text-rose-800 mb-3 text-center">
+                <div className="p-4 hierarchy-secondary rounded-lg border border-border shadow-sm">
+                  <h5 className="font-bold text-foreground mb-3 text-center">
                     {language === 'zh' ? '💗 情感模式' : '💗 Emotional Pattern'}
                   </h5>
-                  <div className="text-center p-3 bg-rose-50 rounded-lg">
+                  <div className="text-center p-3 hierarchy-tertiary rounded-lg">
                     <div className="text-lg font-bold text-rose-600 mb-2">{getEmotionalPattern()}</div>
                     <p className="text-xs text-rose-700 leading-relaxed">{getEmotionalPatternDescription()}</p>
                   </div>
                 </div>
 
-                <div className="p-4 bg-white rounded-lg border border-red-200 shadow-sm">
-                  <h5 className="font-bold text-red-800 mb-3 text-center">
+                <div className="p-4 hierarchy-secondary rounded-lg border border-border shadow-sm">
+                  <h5 className="font-bold text-foreground mb-3 text-center">
                     {language === 'zh' ? '🎯 关系建议' : '🎯 Relationship Advice'}
                   </h5>
                   <div className="space-y-2">
                     {getRelationshipAdvice().map((advice, i) => (
                       typeof advice === 'string' ? (
-                        <div key={i} className="p-2 bg-red-50 rounded text-xs text-red-700">{advice}</div>
+                        <div key={i} className="p-2 hierarchy-tertiary rounded text-xs text-foreground">{advice}</div>
                       ) : (
-                        <div key={i} className="p-2 bg-red-50 rounded text-xs text-red-700">
+                        <div key={i} className="p-2 hierarchy-tertiary rounded text-xs text-foreground">
                           <div className="font-semibold text-primary mb-1">{advice.area}</div>
                           <div className="mb-1">建议：{advice.suggestion}</div>
                           <div className="text-muted-foreground">行动建议：{advice.actionStep}</div>
@@ -2422,7 +2446,7 @@ According to psychological research, healthy individuals should show **moderate 
             >
               <div className="mb-4">
                 <CollapsibleTrigger asChild>
-                  <Button variant="outline" className="w-full flex items-center justify-between p-4 h-auto hover:bg-emerald-50 border-emerald-200">
+                  <Button variant="outline" className="w-full flex items-center justify-between p-4 h-auto">
                     <div className="flex items-center gap-3">
                       <DollarSign className="h-5 w-5 text-emerald-600" />
                       <div className="text-left">
@@ -2442,13 +2466,13 @@ According to psychological research, healthy individuals should show **moderate 
                 </CollapsibleTrigger>
               </div>
               <CollapsibleContent>
-            <div className="p-6 bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50 rounded-lg border border-emerald-200 mb-6">
+            <div className="p-6 quantum-card mb-6">
               <div className="text-center mb-6">
-                <h4 className="font-bold text-xl text-emerald-800 mb-2 flex items-center justify-center gap-2">
+                <h4 className="font-bold text-xl heading-enhanced mb-2 flex items-center justify-center gap-2">
                   <DollarSign className="h-5 w-5" />
                   {language === 'zh' ? '💰 财务能量密码' : '💰 Financial Energy Code'}
                 </h4>
-                <Badge className="bg-gradient-to-r from-emerald-500 to-green-500 text-white mb-3">
+                <Badge className="bg-primary text-white mb-3">
                   {language === 'zh' ? '基于财务能量分析' : 'Based on Financial Energy Analysis'}
                 </Badge>
                 <p className="text-sm text-emerald-700 leading-relaxed mb-4">
@@ -2459,12 +2483,12 @@ According to psychological research, healthy individuals should show **moderate 
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-4 bg-white rounded-lg border border-emerald-200 shadow-sm">
-                  <h5 className="font-bold text-emerald-800 mb-3 flex items-center gap-2">
+                <div className="p-4 hierarchy-secondary rounded-lg border border-border shadow-sm">
+                  <h5 className="font-bold text-foreground mb-3 flex items-center gap-2">
                     <TrendingUp className="h-5 w-5" />
                     {language === 'zh' ? '📊 你的财务人格' : '📊 Your Financial Personality'}
                   </h5>
-                  <div className="text-center p-3 bg-emerald-50 rounded-lg mb-3">
+                  <div className="text-center p-3 hierarchy-tertiary rounded-lg mb-3">
                     <div className="text-lg font-bold text-emerald-600 mb-2">{getFinancialPersonality()}</div>
                     <p className="text-xs text-emerald-700 leading-relaxed">{getFinancialPersonalityDescription()}</p>
                   </div>
@@ -2478,8 +2502,8 @@ According to psychological research, healthy individuals should show **moderate 
                   </div>
                 </div>
 
-                <div className="p-4 bg-white rounded-lg border border-green-200 shadow-sm">
-                  <h5 className="font-bold text-green-800 mb-3 flex items-center gap-2">
+                <div className="p-4 hierarchy-secondary rounded-lg border border-border shadow-sm">
+                  <h5 className="font-bold text-foreground mb-3 flex items-center gap-2">
                     <Target className="h-5 w-5" />
                     {language === 'zh' ? '🎯 个性化理财建议' : '🎯 Personalized Financial Advice'}
                   </h5>
@@ -2497,23 +2521,23 @@ According to psychological research, healthy individuals should show **moderate 
                   
                   <div className="space-y-3">
                     {getPersonalizedFinancialAdvice().map((advice, i) => (
-                      <div key={i} className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-100">
+                      <div key={i} className="p-3 hierarchy-tertiary rounded-lg border border-border">
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex items-center gap-2">
-                            <Badge className="bg-green-500 text-white text-xs">{advice.category}</Badge>
+                            <Badge className="bg-primary text-white text-xs">{advice.category}</Badge>
                             <Badge variant="outline" className="text-xs">{advice.priority}</Badge>
                         </div>
                           {advice.timeline && (
-                            <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700">
+                            <Badge variant="outline" className="text-xs">
                               {advice.timeline}
                             </Badge>
                           )}
                         </div>
-                        <p className="text-xs text-green-800 font-medium leading-relaxed mb-2">{advice.suggestion}</p>
-                        <p className="text-xs text-green-600 mb-2">🌟 {advice.benefit}</p>
+                        <p className="text-xs text-foreground font-medium leading-relaxed mb-2">{advice.suggestion}</p>
+                        <p className="text-xs text-muted-foreground mb-2">🌟 {advice.benefit}</p>
                         {typeof advice === 'object' && advice !== null && 'targetImprovement' in advice &&
                           typeof (advice as any).targetImprovement === 'string' && (advice as any).targetImprovement && (
-                            <p className="text-xs text-green-500 italic">📈 {(advice as any).targetImprovement}</p>
+                            <p className="text-xs text-muted-foreground italic">📈 {(advice as any).targetImprovement}</p>
                         )}
                       </div>
                     ))}
@@ -2531,7 +2555,7 @@ According to psychological research, healthy individuals should show **moderate 
             >
               <div className="mb-4">
                 <CollapsibleTrigger asChild>
-                  <Button variant="outline" className="w-full flex items-center justify-between p-4 h-auto hover:bg-violet-50 border-violet-200">
+                  <Button variant="outline" className="w-full flex items-center justify-between p-4 h-auto">
                     <div className="flex items-center gap-3">
                       <Gem className="h-5 w-5 text-violet-600" />
                       <div className="text-left">
@@ -2551,13 +2575,13 @@ According to psychological research, healthy individuals should show **moderate 
                 </CollapsibleTrigger>
               </div>
               <CollapsibleContent>
-            <div className="p-6 bg-gradient-to-r from-violet-50 via-purple-50 to-indigo-50 rounded-lg border border-violet-200 mb-6">
+            <div className="p-6 quantum-card mb-6">
               <div className="text-center mb-6">
-                <h4 className="font-bold text-xl text-violet-800 mb-2 flex items-center justify-center gap-2">
+                <h4 className="font-bold text-xl heading-enhanced mb-2 flex items-center justify-center gap-2">
                   <Gem className="h-5 w-5" />
                   {language === 'zh' ? '💎 八维专属水晶矩阵' : '💎 Eight-Dimensional Crystal Matrix'}
                 </h4>
-                <Badge className="bg-gradient-to-r from-violet-500 to-purple-500 text-white mb-3">
+                <Badge className="bg-primary text-white mb-3">
                   {language === 'zh' ? '精准匹配' : 'Precise Matching'}
                 </Badge>
                 <p className="text-sm text-violet-700 leading-relaxed mb-4">
@@ -2568,8 +2592,8 @@ According to psychological research, healthy individuals should show **moderate 
               </div>
 
               {/* 能量分析概览 */}
-              <div className="mb-6 p-4 bg-white rounded-lg border border-violet-200 shadow-sm">
-                <h5 className="font-bold text-violet-800 mb-3 flex items-center gap-2">
+              <div className="mb-6 p-4 hierarchy-secondary rounded-lg border border-border shadow-sm">
+                <h5 className="font-bold text-foreground mb-3 flex items-center gap-2">
                   <BarChart3 className="h-5 w-5" />
                   {language === 'zh' ? '🔍 能量分析基础' : '🔍 Energy Analysis Foundation'}
                 </h5>
@@ -2599,10 +2623,10 @@ According to psychological research, healthy individuals should show **moderate 
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {getEnhancedCrystalRecommendations().map((crystal, i) => (
-                  <div key={i} className="p-4 bg-white rounded-lg border border-violet-200 shadow-sm hover:shadow-md transition-shadow">
+                  <div key={i} className="p-4 hierarchy-secondary rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow">
                     <div className="text-center mb-3">
                       <div className="text-2xl mb-2">{crystal.icon}</div>
-                      <h5 className="font-bold text-violet-800 text-sm">{crystal.name}</h5>
+                      <h5 className="font-bold text-foreground text-sm">{crystal.name}</h5>
                       <Badge className={`${crystal.color} text-white text-xs mt-1`}>
                         {crystal.energyType}
                       </Badge>
@@ -2610,20 +2634,20 @@ According to psychological research, healthy individuals should show **moderate 
                     <div className="space-y-3">
                       <p className="text-xs text-violet-700 leading-relaxed">{crystal.description}</p>
                       
-                      <div className="bg-gradient-to-r from-violet-50 to-purple-50 p-3 rounded-lg border border-violet-100">
-                        <p className="text-xs text-violet-600 font-medium mb-1">✨ 个性化分析：</p>
-                        <p className="text-xs text-violet-700 leading-relaxed">{crystal.personalEffect}</p>
+                      <div className="hierarchy-tertiary p-3 rounded-lg border border-border">
+                        <p className="text-xs text-foreground font-medium mb-1">✨ 个性化分析：</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{crystal.personalEffect}</p>
                       </div>
-                      
-                      <div className="bg-violet-50 p-2 rounded">
-                        <p className="text-xs text-violet-600 font-medium mb-1">🔮 使用方法：</p>
-                        <p className="text-xs text-violet-700">{crystal.usage}</p>
+
+                      <div className="hierarchy-tertiary p-2 rounded">
+                        <p className="text-xs text-foreground font-medium mb-1">🔮 使用方法：</p>
+                        <p className="text-xs text-muted-foreground">{crystal.usage}</p>
                       </div>
-                      
+
                       {crystal.targetImprovement && (
-                        <div className="bg-green-50 p-2 rounded border border-green-200">
-                          <p className="text-xs text-green-600 font-medium mb-1">📈 预期效果：</p>
-                          <p className="text-xs text-green-700">{crystal.targetImprovement}</p>
+                        <div className="hierarchy-tertiary p-2 rounded border border-border">
+                          <p className="text-xs text-foreground font-medium mb-1">📈 预期效果：</p>
+                          <p className="text-xs text-muted-foreground">{crystal.targetImprovement}</p>
                         </div>
                       )}
                     </div>
@@ -2648,18 +2672,18 @@ According to psychological research, healthy individuals should show **moderate 
         >
           <div className="mb-4">
           <CollapsibleTrigger asChild>
-              <Button variant="outline" className="w-full flex items-center justify-between p-4 h-auto hover:bg-blue-50 border-blue-200">
+              <Button variant="outline" className="w-full flex items-center justify-between p-4 h-auto">
                 <div className="flex items-center gap-3">
-                  <BookOpen className="h-5 w-5 text-blue-600" />
+                  <BookOpen className="h-5 w-5 text-primary" />
                   <div className="text-left">
-                    <div className="font-semibold text-blue-800">
+                    <div className="font-semibold text-foreground">
                       {language === 'zh' ? '🔍 科学分析原理' : '🔍 Scientific Analysis'}
                       </div>
-                    <div className="text-xs text-blue-600 mt-1">
+                    <div className="text-xs text-muted-foreground mt-1">
                       {language === 'zh' ? '了解能量分析的理论基础和科学依据' : 'Understand the theoretical basis and scientific foundation'}
                 </div>
                     </div>
-                  <Badge className="bg-blue-500 text-white text-xs">
+                  <Badge className="bg-primary text-white text-xs">
                     {language === 'zh' ? '专业知识' : 'Professional'}
                   </Badge>
                   </div>
@@ -2669,22 +2693,22 @@ According to psychological research, healthy individuals should show **moderate 
               </div>
           <CollapsibleContent>
             {/* 直接显示科学分析内容 */}
-            <div className="p-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-lg border border-blue-200">
+            <div className="p-6 quantum-card">
               <div className="text-center mb-6">
-                <h4 className="font-bold text-xl text-blue-800 mb-2 flex items-center justify-center gap-2">
+                <h4 className="font-bold text-xl heading-enhanced mb-2 flex items-center justify-center gap-2">
                   <BarChart3 className="h-5 w-5" />
                   {language === 'zh' ? '📊 能量分布的科学分析' : '📊 Scientific Analysis of Energy Distribution'}
                 </h4>
-                <Badge className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white mb-3">
+                <Badge className="bg-primary text-white mb-3">
                   {language === 'zh' ? '数学模型' : 'Mathematical Model'}
                 </Badge>
                 </div>
 
-              <div className="p-4 bg-white rounded-lg border border-blue-200 shadow-sm">
-                <h6 className="font-semibold text-blue-800 text-sm mb-3">
+              <div className="p-4 hierarchy-secondary rounded-lg border border-border shadow-sm">
+                <h6 className="font-semibold text-foreground text-sm mb-3">
                     {getDetailedAnalysisExplanation().energyDistributionAnalysis.title}
                   </h6>
-                <div className="text-sm text-blue-700 leading-relaxed whitespace-pre-line">
+                <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
                     {getDetailedAnalysisExplanation().energyDistributionAnalysis.content}
                   </div>
                 </div>

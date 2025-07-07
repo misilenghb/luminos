@@ -161,15 +161,15 @@ export default function CreativeWorkshopPage() {
       
       {/* 欢迎内容 */}
       <div className="text-center flex flex-col items-center justify-center h-full text-muted-foreground p-8">
-        <Wand2 className="w-16 h-16 text-accent mb-6" />
-        <h1 className="text-4xl md:text-5xl font-headline font-bold gradient-text halo-effect mb-4">{t('creativeWorkshopPage.title')}</h1>
+        <Wand2 className="w-16 h-16 text-primary mb-6" />
+        <h1 className="text-4xl md:text-5xl font-bold energy-gradient mb-4">{t('creativeWorkshopPage.title')}</h1>
         <p className="max-w-md mb-8">{t('creativeWorkshopPage.description')}</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
-          <div className="border rounded-lg p-4 text-left shadow-sm">
+          <div className="quantum-card p-4 text-left">
             <h3 className="font-semibold text-foreground flex items-center mb-2"><Lightbulb className="w-5 h-5 mr-2 text-primary"/>{t('creativeWorkshopPage.welcome.getSuggestionsTitle')}</h3>
             <p className="text-sm">{t('creativeWorkshopPage.welcome.getSuggestionsDesc')}</p>
           </div>
-          <div className="border rounded-lg p-4 text-left shadow-sm">
+          <div className="quantum-card p-4 text-left">
             <h3 className="font-semibold text-foreground flex items-center mb-2"><Images className="w-5 h-5 mr-2 text-primary"/>{t('creativeWorkshopPage.welcome.generateDirectlyTitle')}</h3>
             <p className="text-sm">{t('creativeWorkshopPage.welcome.generateDirectlyDesc')}</p>
           </div>

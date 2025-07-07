@@ -68,15 +68,15 @@ export default function SimpleDesignPage() {
   };
 
   return (
-    <div className="container mx-auto p-4 md:p-8">
+    <div className="container-center space-section">
       <header className="mb-10 text-center">
-        <h1 className="text-4xl md:text-5xl font-headline font-bold gradient-text halo-effect">{t('simpleDesignPage.title')}</h1>
+        <h1 className="text-4xl md:text-5xl font-bold energy-gradient mb-4">{t('simpleDesignPage.title')}</h1>
         <p className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">
           {t('simpleDesignPage.description')}
         </p>
       </header>
 
-      <div className="flex flex-col items-center space-y-10">
+      <div className="flex flex-col items-center space-content">
         <SimpleDesignForm
           onSubmitDesign={handleDesignSubmit}
           isSubmitting={isLoadingSuggestions}

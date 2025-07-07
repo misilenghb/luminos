@@ -27,7 +27,7 @@ const LIFE_SCENARIOS = {
     icon: Briefcase,
     title: '工作场景',
     titleEn: 'Work & Career',
-    color: 'bg-blue-500',
+    color: 'bg-primary',
     description: '提升专注力、缓解压力、增强领导力',
     scenarios: [
       {
@@ -81,7 +81,7 @@ const LIFE_SCENARIOS = {
     icon: Activity,
     title: '健康场景',
     titleEn: 'Health & Wellness',
-    color: 'bg-green-500',
+    color: 'bg-primary',
     description: '促进睡眠、增强免疫、平衡身心',
     scenarios: [
       {
@@ -108,7 +108,7 @@ const LIFE_SCENARIOS = {
     icon: DollarSign,
     title: '财运场景',
     titleEn: 'Wealth & Prosperity',
-    color: 'bg-yellow-500',
+    color: 'bg-primary',
     description: '招财聚富、投资决策、事业发展',
     scenarios: [
       {
@@ -134,7 +134,7 @@ const LIFE_SCENARIOS = {
 };
 
 const LifeScenarioGuidance: React.FC<LifeScenarioGuidanceProps> = ({ userProfile, className = "" }) => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   // 根据用户画像推荐最适合的水晶
   const getPersonalizedCrystalRecommendation = (crystals: string[]) => {
@@ -174,8 +174,8 @@ const LifeScenarioGuidance: React.FC<LifeScenarioGuidanceProps> = ({ userProfile
   return (
     <Card className={`w-full ${className}`}>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Sparkles className="h-6 w-6 text-purple-500" />
+        <CardTitle className="flex items-center gap-2 heading-enhanced">
+          <Sparkles className="h-6 w-6 text-primary" />
           {language === 'zh' ? '生活场景水晶指南' : 'Life Scenario Crystal Guide'}
         </CardTitle>
         <p className="text-sm text-muted-foreground">
@@ -207,14 +207,14 @@ const LifeScenarioGuidance: React.FC<LifeScenarioGuidanceProps> = ({ userProfile
 
           {Object.entries(LIFE_SCENARIOS).map(([key, scenario]) => (
             <TabsContent key={key} value={key} className="space-y-4">
-              <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
+              <div className="text-center p-4 quantum-card">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <scenario.icon className="h-6 w-6 text-purple-600" />
-                  <h3 className="text-lg font-semibold text-purple-800">
-                    {language === 'zh' ? scenario.title : scenario.titleEn}
+                  <scenario.icon className="h-6 w-6 text-primary" />
+                  <h3 className="text-lg font-semibold heading-enhanced">
+                    {t(`energyExplorationPage.lifeScenarios.${key}.title`)}
                   </h3>
                 </div>
-                <p className="text-sm text-gray-600">{scenario.description}</p>
+                <p className="text-sm text-muted-foreground">{t(`energyExplorationPage.lifeScenarios.${key}.description`)}</p>
               </div>
 
               <div className="grid gap-4">
@@ -223,7 +223,7 @@ const LifeScenarioGuidance: React.FC<LifeScenarioGuidanceProps> = ({ userProfile
                   const personalizedGuidance = getPersonalizedGuidance(item.situation, item.guidance);
                   
                   return (
-                    <Card key={index} className="border-l-4 border-purple-500">
+                    <Card key={index} className="border-l-4 border-primary">
                       <CardHeader className="pb-3">
                         <CardTitle className="text-base flex items-center justify-between">
                           <span>{item.situation}</span>
@@ -259,8 +259,8 @@ const LifeScenarioGuidance: React.FC<LifeScenarioGuidanceProps> = ({ userProfile
                           {userProfile.recommendedCrystals && personalizedCrystals.some(crystal => 
                             userProfile.recommendedCrystals!.some(rec => rec.name.includes(crystal))
                           ) && (
-                            <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                              <p className="text-xs text-green-700">
+                            <div className="mt-3 p-3 hierarchy-tertiary rounded-lg border border-border">
+                              <p className="text-xs text-foreground">
                                 ⭐ 这些水晶特别适合你的能量特质！建议优先使用。
                               </p>
                             </div>
@@ -276,26 +276,26 @@ const LifeScenarioGuidance: React.FC<LifeScenarioGuidanceProps> = ({ userProfile
         </Tabs>
 
         {/* 使用贴士 */}
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-          <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-            <Shield className="h-5 w-5 text-blue-500" />
+        <div className="mt-6 p-4 hierarchy-secondary rounded-lg">
+          <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+            <Shield className="h-5 w-5 text-primary" />
             {language === 'zh' ? '使用贴士' : 'Usage Tips'}
           </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-muted-foreground">
             <div className="flex items-start gap-2">
-              <span className="text-blue-500 font-semibold">•</span>
+              <span className="text-primary font-semibold">•</span>
               <span>首次使用前请进行水晶净化和充能</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-blue-500 font-semibold">•</span>
+              <span className="text-primary font-semibold">•</span>
               <span>根据个人感受调整佩戴时间和位置</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-blue-500 font-semibold">•</span>
+              <span className="text-primary font-semibold">•</span>
               <span>定期清洁和重新充能以保持效果</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-blue-500 font-semibold">•</span>
+              <span className="text-primary font-semibold">•</span>
               <span>相信直觉，选择最有共鸣的水晶</span>
             </div>
           </div>

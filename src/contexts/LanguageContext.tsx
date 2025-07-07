@@ -12,10 +12,10 @@ type Language = 'en' | 'zh';
 export type Theme = 'morning' | 'noon' | 'dusk' | 'night';
 
 interface Translations {
-  [key: string]: string | NestedTranslations;
+  [key: string]: any;
 }
 interface NestedTranslations {
-  [key: string]: string | NestedTranslations;
+  [key: string]: any;
 }
 
 const translations: Record<Language, Translations> = {
@@ -112,10 +112,18 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     // This effect runs only on the client, after initial hydration
     const storedLang = localStorage.getItem('language') as Language | null;
     const storedTheme = localStorage.getItem('theme') as Theme | null;
-    
-    let initialLangOnClient: Language = 'en';
+
+    let initialLangOnClient: Language = 'zh'; // Default to Chinese for better user experience
     if (storedLang && (storedLang === 'en' || storedLang === 'zh')) {
       initialLangOnClient = storedLang;
+    } else {
+      // If no stored language, try to detect browser language
+      const browserLang = navigator.language || navigator.languages?.[0];
+      if (browserLang?.startsWith('zh')) {
+        initialLangOnClient = 'zh';
+      } else {
+        initialLangOnClient = 'en';
+      }
     }
     setLanguageState(initialLangOnClient);
 
@@ -124,8 +132,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         initialThemeOnClient = storedTheme;
     }
     setThemeState(initialThemeOnClient);
-    
-    setIsClientHydrated(true); 
+
+    setIsClientHydrated(true);
   }, []);
 
   useEffect(() => {

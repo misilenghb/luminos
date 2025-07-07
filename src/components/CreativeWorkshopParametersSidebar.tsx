@@ -90,10 +90,21 @@ const CreativeWorkshopParametersSidebar: React.FC<CreativeWorkshopParametersSide
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRecommendingAccessories, setIsRecommendingAccessories] = useState(false);
 
-  const crystalOptionsForSelect = Object.keys(allCrystalData).map(key => ({
-    value: key,
-    label: getCrystalDisplayName(key as keyof typeof allCrystalData)
-  }));
+  const crystalOptionsForSelect = useMemo(() => {
+    try {
+      return Object.keys(allCrystalData).map(key => ({
+        value: key,
+        label: getCrystalDisplayName(key as keyof typeof allCrystalData)
+      })).sort((a, b) => a.label.localeCompare(b.label));
+    } catch (error) {
+      console.error('Error generating crystal options:', error);
+      return [
+        { value: 'Amethyst', label: '紫水晶 (Amethyst)' },
+        { value: 'RoseQuartz', label: '粉晶 (Rose Quartz)' },
+        { value: 'ClearQuartz', label: '白水晶 (Clear Quartz)' }
+      ];
+    }
+  }, [allCrystalData, getCrystalDisplayName]);
 
   const safeDesignInput: DesignStateInput = {
     ...designInput,
@@ -407,21 +418,30 @@ const CreativeWorkshopParametersSidebar: React.FC<CreativeWorkshopParametersSide
                   <div className="space-y-3">
                     <div>
                       <Label className="text-xs font-medium">水晶类型</Label>
-                      <Controller 
-                        name={`mainStones.${index}.crystalType`} 
-                        control={control} 
+                      <Controller
+                        name={`mainStones.${index}.crystalType`}
+                        control={control}
                         render={({ field }) => (
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              // 清空颜色选择当水晶类型改变时
+                              setValue(`mainStones.${index}.color`, "", { shouldDirty: true });
+                            }}
+                            value={field.value || ""}
+                          >
                             <SelectTrigger className="mt-1 h-8">
                               <SelectValue placeholder="选择水晶" />
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="max-h-60 overflow-y-auto">
                               {crystalOptionsForSelect.map((opt) => (
-                                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                                <SelectItem key={opt.value} value={opt.value}>
+                                  <span className="truncate">{opt.label}</span>
+                                </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
-                        )} 
+                        )}
                       />
                     </div>
                     

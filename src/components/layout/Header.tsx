@@ -28,9 +28,10 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-card shadow-md sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-2 text-2xl font-headline font-bold gradient-text">
+    <header className="bg-card/95 backdrop-blur-sm border-b border-border sticky top-0 z-50">
+      <div className="container-center py-3 flex-between">
+        <Link href="/" className="flex items-center gap-2 text-2xl font-bold energy-gradient">
+          <Sparkles className="h-6 w-6" />
           {t('header.title')}
         </Link>
         

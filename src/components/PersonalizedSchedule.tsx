@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CheckCircle, Clock, Coffee, Moon, Brain, Users, Wind, Heart } from 'lucide-react';
-import type { DailyEnergyState } from '@/app/daily-focus/page';
+import type { DailyEnergyState } from '@/types/daily-focus';
 import type { UserProfileDataOutput } from '@/ai/schemas/user-profile-schemas';
 
 interface PersonalizedScheduleProps {

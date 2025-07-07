@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,19 +11,20 @@ import UserProfileDisplay from "./UserProfileDisplay";
 import CrystalFilteringSystem from "./CrystalFilteringSystem";
 import FiveDimensionalEnergyChart from './FiveDimensionalEnergyChart';
 import LifeScenarioGuidance from './LifeScenarioGuidance';
+// 暂时移除统一的核心组件以解决水合错误
+// import { EnergyAnalysisHub } from '@/components/core/EnergyCore';
+// import { ProfileDisplayHub } from '@/components/core/ProfileCore';
 import type { UserProfileDataOutput as UserProfileData } from "@/ai/schemas/user-profile-schemas";
 import type { ChakraAssessmentScores } from "@/types/questionnaire";
-import { createClient } from '@supabase/supabase-js';
-import { Loader2, Star, Zap, Target, TrendingUp, CheckCircle } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import {
+  Loader2, Star, Zap, Target, TrendingUp, CheckCircle,
+  Brain, Lightbulb, Gem, Sparkles, Heart, User, ToggleLeft, ToggleRight
+} from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Sparkles, User, Gem, Brain, Lightbulb, ToggleLeft, ToggleRight } from 'lucide-react';
 
-// 初始化 Supabase 客户端
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+
 
 export default function EnergyExplorationPageContent() {
   const { t } = useLanguage();
@@ -47,7 +48,7 @@ export default function EnergyExplorationPageContent() {
   // 添加重新测试确认的状态
   const [showRestartConfirm, setShowRestartConfirm] = useState(false);
   // 添加Tab状态
-  const [activeTab, setActiveTab] = useState("personalized");
+  const [activeTab, setActiveTab] = useState("overview");
   // 添加5维/8维视图切换状态
   const [showEnhancedView, setShowEnhancedView] = useState(!!enhancedData);
 
@@ -436,132 +437,99 @@ export default function EnergyExplorationPageContent() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container-center space-section">
       <div className="max-w-6xl mx-auto">
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="personalized" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              {t('energyExplorationPage.tabs.questionnaire')}
-            </TabsTrigger>
-            <TabsTrigger value="crystal-filter" className="flex items-center gap-2">
-              <Gem className="h-4 w-4" />
-              {t('energyExplorationPage.tabs.crystalFiltering')}
-            </TabsTrigger>
-          </TabsList>
+        {/* 主要内容区域 */}
+        <div className="space-content">
 
-          <TabsContent value="personalized" className="space-y-6">
+
             {/* 能量画像完成状态 - 直接显示详细内容 */}
             {profileLoaded && (userProfile || enhancedData) && (
               <div className="space-y-6">
-                {/* 状态概览卡片 */}
-                <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
+                {/* 深度能量画像卡片 - 整合功能按钮 */}
+                <div className="quantum-card energy-card p-6">
+                  <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                      <div className="bg-blue-500 rounded-full p-2">
+                      <div className="bg-primary rounded-full p-2">
                         <Brain className="h-6 w-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-blue-900">
+                        <h3 className="text-xl font-bold heading-enhanced">
                           {enhancedData ? '您的深度能量画像' : '您的能量画像'}
                         </h3>
-                        <p className="text-blue-700 text-sm">
+                        <p className="text-muted-foreground text-sm">
                           {enhancedData ? '基于八维深度评估的完整分析' : '基于五维能量评估的个性化分析'}
                         </p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-3">
-                      {/* 5维与8维切换按钮 */}
+                      {/* 五维/八维切换按钮 - 统一样式 */}
                       {enhancedData && (
                         <div className="flex items-center gap-2">
-                          <div className="flex items-center text-sm text-muted-foreground">
-                            <span className={!showEnhancedView ? 'text-primary font-medium' : ''}>5维</span>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setShowEnhancedView(!showEnhancedView)}
-                              className="mx-1 p-1 h-auto"
-                            >
-                              {showEnhancedView ? (
-                                <ToggleRight className="h-5 w-5 text-primary" />
-                              ) : (
-                                <ToggleLeft className="h-5 w-5 text-muted-foreground" />
-                              )}
-                            </Button>
-                            <span className={showEnhancedView ? 'text-primary font-medium' : ''}>8维</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            {showEnhancedView && <Star className="h-4 w-4 text-yellow-500" />}
-                            <span className="text-xs text-muted-foreground">
-                              {showEnhancedView ? '深度视图' : '基础视图'}
-                            </span>
-                          </div>
+                          <Button
+                            variant={!showEnhancedView ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setShowEnhancedView(false)}
+                            className="h-8 px-3 text-xs"
+                          >
+                            五维
+                          </Button>
+                          <Button
+                            variant={showEnhancedView ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setShowEnhancedView(true)}
+                            className="h-8 px-3 text-xs"
+                          >
+                            八维
+                          </Button>
                         </div>
                       )}
-                      
+
                       {/* 重新测试按钮 */}
                       <Button
                         onClick={() => setShowRestartConfirm(true)}
                         variant="outline"
                         size="sm"
-                        className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                        className="h-8 px-3 text-xs"
                       >
                         🔄 重新测试
                       </Button>
                     </div>
                   </div>
-                  
-                  {/* 快速预览信息 */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div className="bg-white bg-opacity-60 rounded-lg p-3">
-                      <div className="font-semibold text-blue-800 mb-1">✨ 能量状态</div>
-                      <div className="text-blue-700">
-                        {enhancedData ? '深度八维能量分析已完成' : '五维能量基础分析已完成'}
+
+
+
+                  {/* 核心能量洞察 - 合并到画像卡片中 */}
+                  {userProfile?.coreEnergyInsights && (
+                    <div className="mt-6 pt-6 border-t border-border">
+                      <div className="hierarchy-secondary rounded-lg p-4">
+                        <div className="text-foreground leading-relaxed text-sm">
+                          {userProfile.coreEnergyInsights.split('\n\n').map((paragraph, pIndex) => (
+                            <p key={`p-${pIndex}`} className="mb-3 last:mb-0">
+                              {paragraph.split('\n').map((line, lIndex) => (
+                                <React.Fragment key={`l-${lIndex}`}>
+                                  {line}
+                                  {lIndex < paragraph.split('\n').length - 1 && <br />}
+                                </React.Fragment>
+                              ))}
+                            </p>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                    <div className="bg-white bg-opacity-60 rounded-lg p-3">
-                      <div className="font-semibold text-blue-800 mb-1">🔮 个性化建议</div>
-                      <div className="text-blue-700">
-                        {userProfile?.recommendedCrystals?.length || 0} 个专属水晶推荐
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
-                {/* 核心能量洞察 */}
-                {userProfile?.coreEnergyInsights && (
-                  <Card className="bg-card/50 shadow-md">
-                    <CardHeader>
-                      <CardTitle className="text-xl flex items-center">
-                        <Lightbulb className="mr-2 h-5 w-5 text-accent" />
-                        核心能量洞察
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-foreground ml-1 leading-relaxed text-base">
-                        {userProfile.coreEnergyInsights.split('\n\n').map((paragraph, pIndex) => (
-                          <p key={`p-${pIndex}`} className="mb-2 last:mb-0">
-                            {paragraph.split('\n').map((line, lIndex) => (
-                              <React.Fragment key={`l-${lIndex}`}>
-                                {line}
-                                {lIndex < paragraph.split('\n').length - 1 && <br />}
-                              </React.Fragment>
-                            ))}
-                          </p>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
+
 
                 {/* 深度分析结果展示（修复对象渲染问题） */}
                 {enhancedData?.deepAnalysisResults && Array.isArray(enhancedData.deepAnalysisResults) && enhancedData.deepAnalysisResults.length > 0 && (
-                  <Card className="bg-card/50 shadow-md">
+                  <Card className="quantum-card">
                     <CardHeader>
-                      <CardTitle className="text-xl flex items-center">
-                        <Lightbulb className="mr-2 h-5 w-5 text-accent" />
+                      <CardTitle className="text-xl flex items-center heading-enhanced">
+                        <Lightbulb className="mr-2 h-5 w-5 text-primary" />
                         深度个性化分析
                       </CardTitle>
                     </CardHeader>
@@ -579,27 +547,49 @@ export default function EnergyExplorationPageContent() {
                   </Card>
                 )}
 
+                {/* 统一的能量分析组件 - 暂时移除以解决水合错误 */}
+                {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                  <EnergyAnalysisHub
+                    profile={userProfile}
+                    mode="exploration"
+                    layout="chart"
+                    showAdvanced={true}
+                  />
+
+                  <ProfileDisplayHub
+                    profile={userProfile}
+                    mode="detailed"
+                    showElements={['mbti', 'zodiac', 'chakra', 'energy', 'element', 'planet']}
+                    interactive={true}
+                  />
+                </div> */}
+
                 {/* 八维度能量画像 */}
-                <FiveDimensionalEnergyChart 
-                  profileData={userProfile}
-                  chakraScores={chakraScores}
-                  className="mt-6"
-                  physicalAssessment={showEnhancedView ? enhancedData?.physicalAssessment : undefined}
-                  lifeRhythm={showEnhancedView ? enhancedData?.lifeRhythm : undefined}
-                  socialAssessment={showEnhancedView ? enhancedData?.socialAssessment : undefined}
-                  financialEnergyAssessment={showEnhancedView ? enhancedData?.financialEnergyAssessment : undefined}
-                  emotionalIntelligenceAssessment={showEnhancedView ? enhancedData?.emotionalIntelligenceAssessment : undefined}
-                />
+                <div data-chart="five-dimensional">
+                  <FiveDimensionalEnergyChart
+                    profileData={userProfile}
+                    chakraScores={chakraScores}
+                    className="mt-6"
+                    physicalAssessment={showEnhancedView ? enhancedData?.physicalAssessment : undefined}
+                    lifeRhythm={showEnhancedView ? enhancedData?.lifeRhythm : undefined}
+                    socialAssessment={showEnhancedView ? enhancedData?.socialAssessment : undefined}
+                    financialEnergyAssessment={showEnhancedView ? enhancedData?.financialEnergyAssessment : undefined}
+                    emotionalIntelligenceAssessment={showEnhancedView ? enhancedData?.emotionalIntelligenceAssessment : undefined}
+                  />
+                </div>
 
                 {/* 生活场景水晶指导 */}
-                <LifeScenarioGuidance 
-                  userProfile={userProfile ?? {} as any}
-                  className="mt-6"
-                />
+                <div data-section="life-guidance">
+                  <LifeScenarioGuidance
+                    userProfile={userProfile ?? {} as any}
+                    className="mt-6"
+                  />
+                </div>
 
                 {/* 推荐水晶详细信息 */}
-                {userProfile?.recommendedCrystals && userProfile.recommendedCrystals.length > 0 && (
-                  <Card className="bg-background shadow-inner">
+                <div data-section="crystal-filtering">
+                  {userProfile?.recommendedCrystals && userProfile.recommendedCrystals.length > 0 && (
+                    <Card className="bg-background shadow-inner">
                     <CardHeader>
                       <CardTitle className="text-xl flex items-center">
                         <Sparkles className="mr-2 h-6 w-6 text-accent" />
@@ -682,7 +672,8 @@ export default function EnergyExplorationPageContent() {
                       ))}
                     </CardContent>
                   </Card>
-                )}
+                  )}
+                </div>
               </div>
             )}
 
@@ -698,8 +689,8 @@ export default function EnergyExplorationPageContent() {
             {/* 分析状态 */}
             {(isAnalyzingProfile || isLoadingProfile) && (
               <div className="flex flex-col items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mb-4"></div>
-                <p className="text-lg font-medium">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+                <p className="text-lg font-medium text-foreground">
                   {isLoadingProfile ? '加载您的档案数据...' : '正在分析您的能量画像...'}
                 </p>
                 <p className="text-muted-foreground mt-2">
@@ -711,12 +702,12 @@ export default function EnergyExplorationPageContent() {
                          {/* 增强评估选择对话框 */}
              {showEnhancedDialog && !isEnhancedMode && (
                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                 <div className="bg-white rounded-lg p-6 max-w-md mx-4">
-                   <h3 className="text-lg font-semibold mb-4 text-center flex items-center gap-2 justify-center">
-                     <Star className="h-5 w-5 text-yellow-500" />
+                 <div className="quantum-card p-6 max-w-md mx-4">
+                   <h3 className="text-lg font-semibold mb-4 text-center flex items-center gap-2 justify-center heading-enhanced">
+                     <Star className="h-5 w-5 text-primary" />
                      想要更深入了解自己吗？
                    </h3>
-                   <div className="space-y-3 mb-6 text-gray-600">
+                   <div className="space-y-3 mb-6 text-muted-foreground">
                      <p>🎉 恭喜完成基础五维能量评估！</p>
                      <p>现在您可以选择升级到<strong>深度八维评估</strong>，获得更全面的能量分析</p>
                    </div>
@@ -733,7 +724,7 @@ export default function EnergyExplorationPageContent() {
                          setIsEnhancedMode(true);
                          setShowEnhancedDialog(false);
                        }}
-                       className="flex-1 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600"
+                       className="flex-1"
                      >
                        <Star className="w-4 h-4 mr-1" />
                        开始深度评估
@@ -751,23 +742,20 @@ export default function EnergyExplorationPageContent() {
                 onAnalyzing={setIsAnalyzingProfile}
               />
             )}
-          </TabsContent>
+        </div>
 
-          <TabsContent value="crystal-filter">
-            <CrystalFilteringSystem />
-          </TabsContent>
-        </Tabs>
+
 
 
 
         {/* 重新测试确认对话框 */}
         {showRestartConfirm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md mx-4">
-              <h3 className="text-lg font-semibold mb-4 text-center">
+            <div className="quantum-card p-6 max-w-md mx-4">
+              <h3 className="text-lg font-semibold mb-4 text-center heading-enhanced">
                 🔄 确认重新测试
               </h3>
-              <p className="text-gray-600 mb-6 text-center">
+              <p className="text-muted-foreground mb-6 text-center">
                 这将清空您的所有评估数据，需要重新完成问卷。
                 <br /><br />
                 您确定要继续吗？
@@ -782,7 +770,8 @@ export default function EnergyExplorationPageContent() {
                 </Button>
                 <Button
                   onClick={handleRestartQuestionnaire}
-                  className="flex-1 bg-red-500 hover:bg-red-600"
+                  variant="destructive"
+                  className="flex-1"
                   disabled={isLoadingProfile}
                 >
                   {isLoadingProfile ? '处理中...' : '确认重新测试'}

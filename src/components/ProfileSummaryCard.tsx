@@ -50,7 +50,7 @@ const ProfileSummaryCard = ({ profile }: ProfileSummaryCardProps) => {
     const mbtiType = extractMbtiType(profile.mbtiLikeType);
     
     return (
-        <Card className="shadow-lg animate-in fade-in-50 duration-500">
+        <Card className="quantum-card quantum-hover fade-in">
             <CardHeader className="flex flex-row items-center gap-4">
                 <Avatar>
                     <AvatarFallback>{profile.name?.[0] || 'U'}</AvatarFallback>
@@ -106,12 +106,12 @@ ProfileSummaryCard.Skeleton = () => (
 ProfileSummaryCard.CreatePrompt = () => {
     const { t } = useLanguage();
     return (
-        <Card className="text-center p-6">
+        <Card className="quantum-card text-center p-6">
             <CardHeader className="p-0 mb-4">
                 <div className="mx-auto bg-primary/10 p-3 rounded-full w-fit">
                     <User className="h-8 w-8 text-primary" />
                 </div>
-                <CardTitle className="mt-2">{t('dailyFocusPage.noProfile.title')}</CardTitle>
+                <CardTitle className="mt-2 heading-enhanced">{t('dailyFocusPage.noProfile.title')}</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
                 <p className="text-sm text-muted-foreground">{t('dailyFocusPage.noProfile.description')}</p>

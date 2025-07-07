@@ -31,7 +31,42 @@
     "testConnectionTitle": "Firebase 连接测试",
     "testConnectionDescription": "点击按钮向您的Firestore数据库写入一个测试文档，以验证连接。",
     "testConnectionButton": "测试连接",
-    "testingConnectionButton": "测试中..."
+    "testingConnectionButton": "测试中...",
+    "databaseManagement": {
+      "title": "数据库管理",
+      "description": "监控和修复数据库表结构与关联关系",
+      "helpText": "如果遇到数据保存问题或功能异常，可以使用此工具诊断和修复数据库关联。",
+      "button": "数据库关联管理"
+    },
+    "aiModels": {
+      "title": "AI模型设置",
+      "description": "选择你想要体验的AI模型，随时一键切换！",
+      "imageModelLabel": "图像生成模型",
+      "imageModelPlaceholder": "选择图像生成模型",
+      "textModelLabel": "文本生成模型",
+      "textModelPlaceholder": "选择文本生成模型",
+      "tokenPlaceholder": "请输入你的Pollinations API Token",
+      "imageModelSwitched": "图像生成模型已切换",
+      "textModelSwitched": "文本生成模型已切换",
+      "models": {
+        "flux": "主流文生图",
+        "fluxPro": "加强效果",
+        "fluxRealism": "写实风格",
+        "fluxAnime": "动漫风格",
+        "flux3d": "3D风格",
+        "fluxCablyai": "实验性",
+        "turbo": "快速生成",
+        "variation": "图像变体",
+        "dreamshaper": "梦幻风格",
+        "anything": "动漫风格",
+        "pixart": "高质量插图",
+        "openai": "GPT系列",
+        "mistral": "Mistral LLM",
+        "gemini": "Google Gemini"
+      }
+    },
+    "themeTest": "主题测试组件",
+    "userGalleryStats": "用户作品集统计"
   },
   "loginPage": {
     "title": "登录",
@@ -85,10 +120,49 @@
   },
   "homePage": {
     "mainHeading": "Luminos灵境",
-    "subHeading": "利用AI的力量探索水晶的能量特性，并生成个性化的珠宝设计。将古老智慧与现代技术融合，实现您的独特愿景。",
-    "startButton": "您的能量画像",
-    "quickModeButton": "快速设计模式",
-    "discoverTagline": "发现您的水晶盟友 & 创造您的愿景。"
+    "subHeading": "基于科学心理学和古老智慧的个性化能量管理平台",
+    "description": "通过MBTI性格分析、脉轮能量评估和AI智能洞察，帮助你更好地了解自己，优化日常生活节奏",
+    "startButton": "开始体验",
+    "energyExplorationButton": "能量探索",
+    "discoverTagline": "发现您的水晶盟友 & 创造您的愿景。",
+    "stats": {
+      "activeUsers": "活跃用户",
+      "personalityTypes": "性格类型",
+      "chakraCenters": "脉轮中心",
+      "crystalTypes": "水晶类型"
+    },
+    "featuresTitle": "强大功能",
+    "featuresDescription": "科学与灵性的完美结合，为你提供全方位的个人成长支持",
+    "ctaTitle": "准备开始你的能量管理之旅？",
+    "ctaDescription": "只需几分钟，就能获得个性化的能量洞察和建议",
+    "ctaStartButton": "立即开始",
+    "ctaDailyFocusButton": "今日专注",
+    "features": {
+      "aiAnalysis": {
+        "title": "AI智能分析",
+        "description": "基于MBTI和脉轮的深度个性分析",
+        "stats": "85%",
+        "statsLabel": "准确率"
+      },
+      "energyTracking": {
+        "title": "能量追踪",
+        "description": "实时监控和预测你的能量状态",
+        "stats": "24/7",
+        "statsLabel": "监控"
+      },
+      "smartSchedule": {
+        "title": "智能日程",
+        "description": "根据能量状态优化日程安排",
+        "stats": "30%",
+        "statsLabel": "效率提升"
+      },
+      "crystalGuidance": {
+        "title": "水晶指导",
+        "description": "个性化的水晶能量推荐",
+        "stats": "100+",
+        "statsLabel": "水晶库"
+      }
+    }
   },
   "dailyFocusPage": {
     "titleToday": "今日焦点",
@@ -156,6 +230,77 @@
     "tabs": {
       "questionnaire": "个性化画像",
       "crystalFiltering": "水晶筛选"
+    },
+    "instantFeedback": {
+      "zodiacAnalysis": "✨ 星座能量解读",
+      "chakraPreview": "🌟 脉轮能量预览",
+      "personalityInsights": "🧠 性格特质洞察",
+      "lifestyleAnalysis": "🎨 生活风格分析",
+      "currentStatusAnalysis": "💫 当前状态分析"
+    },
+    "fiveDimensional": {
+      "title": "🌟 你的个人特质分析",
+      "titleEnhanced": "🌟 你的八维能量画像",
+      "description": "就像体检报告一样，这里显示你在性格、情绪、身体、天赋、运气五个方面的状态，帮你更了解自己",
+      "descriptionEnhanced": "基于增强评估的八维能量分析，涵盖人格、星座、脉轮、五行、行星、生命密码、身体能量、社交能量，为你提供更全面深入的自我认知",
+      "enhanced": "增强版",
+      "displaySettings": "显示设置",
+      "compactMode": "简洁",
+      "detailedMode": "详细",
+      "advancedContent": "高级内容",
+      "showAll": "展开全部",
+      "hideAll": "收起全部",
+      "coreAnalysis": "核心分析",
+      "deepInsights": "深度洞察",
+      "personalizedTips": "专属建议",
+      "overallStatus": "😊 整体状态",
+      "balanceLevel": "⚖️ 平衡程度",
+      "synergyLevel": "🤝 配合度",
+      "harmony": "协调度",
+      "suggestionsTitle": "💡 给你的专属建议",
+      "todayActions": "🎯 今天就能做的小事",
+      "weeklyHabits": "📅 本周习惯养成",
+      "understandYourself": "🎭 简单了解你自己",
+      "innerMotivation": "💪 内心动力",
+      "workingStyle": "🎨 做事风格",
+      "currentStatus": "📈 当前状态",
+      "energyCode": "🔮 专属能量密码",
+      "relationshipMap": "💝 人际关系图谱",
+      "financialCode": "💰 财务能量密码",
+      "crystalMatrix": "💎 专属水晶矩阵",
+      "scientificAnalysis": "🔍 科学分析原理"
+    },
+    "lifeScenarios": {
+      "title": "🌟 生活场景指导",
+      "description": "根据你的能量画像，为不同生活场景推荐合适的水晶和使用方法",
+      "work": {
+        "title": "工作场景",
+        "description": "提升专注力、缓解压力、增强领导力"
+      },
+      "love": {
+        "title": "恋爱关系",
+        "description": "增进感情、提升魅力、化解冲突"
+      },
+      "health": {
+        "title": "健康管理",
+        "description": "平衡身心、增强活力、改善睡眠"
+      },
+      "finance": {
+        "title": "财务规划",
+        "description": "招财聚财、理性决策、增强信心"
+      },
+      "usageTips": "💡 使用贴士",
+      "personalizedTip": "💫 个性化提示"
+    },
+    "questionnaire": {
+      "enhancedAssessment": {
+        "declineButton": "暂时不需要",
+        "acceptButton": "开始深度评估 ✨"
+      },
+      "storage": {
+        "saveError": "无法保存问卷进度到本地存储:",
+        "clearError": "无法清除本地存储的问卷数据:"
+      }
     },
     "questionnaire": {
       "title": "个性化能量画像",
@@ -1334,7 +1479,8 @@
     "element": "元素:",
     "mbtiLikeType": "人格类型 (类MBTI):",
     "backButton": "返回",
-    "cancelButton": "取消"
+    "cancelButton": "取消",
+    "currentModel": "当前模型：{{model}}"
   },
   "promptBuilder": {
     "and": "和",

@@ -11,26 +11,28 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import ThemeTestComponent from '@/components/ThemeTestComponent';
 import UserGalleryStats from '@/components/UserGalleryStats';
 
-// Pollinations 支持的模型
-const IMAGE_MODELS = [
-  { value: 'flux', label: 'flux（主流文生图）' },
-  { value: 'flux-pro', label: 'flux-pro（加强效果）' },
-  { value: 'flux-realism', label: 'flux-realism（写实风格）' },
-  { value: 'flux-anime', label: 'flux-anime（动漫风格）' },
-  { value: 'flux-3d', label: 'flux-3d（3D风格）' },
-  { value: 'flux-cablyai', label: 'flux-cablyai（实验性）' },
-  { value: 'turbo', label: 'turbo（快速生成）' },
-  { value: 'variation', label: 'variation（图像变体）' },
-  { value: 'dreamshaper', label: 'dreamshaper（梦幻风格）' },
-  { value: 'anything', label: 'anything（动漫风格）' },
-  { value: 'pixart', label: 'pixart（高质量插图）' },
+// Pollinations supported models
+const getImageModels = (t: any) => [
+  { value: 'flux', label: `flux (${t('settingsPage.aiModels.models.flux')})` },
+  { value: 'flux-pro', label: `flux-pro (${t('settingsPage.aiModels.models.fluxPro')})` },
+  { value: 'flux-realism', label: `flux-realism (${t('settingsPage.aiModels.models.fluxRealism')})` },
+  { value: 'flux-anime', label: `flux-anime (${t('settingsPage.aiModels.models.fluxAnime')})` },
+  { value: 'flux-3d', label: `flux-3d (${t('settingsPage.aiModels.models.flux3d')})` },
+  { value: 'flux-cablyai', label: `flux-cablyai (${t('settingsPage.aiModels.models.fluxCablyai')})` },
+  { value: 'turbo', label: `turbo (${t('settingsPage.aiModels.models.turbo')})` },
+  { value: 'variation', label: `variation (${t('settingsPage.aiModels.models.variation')})` },
+  { value: 'dreamshaper', label: `dreamshaper (${t('settingsPage.aiModels.models.dreamshaper')})` },
+  { value: 'anything', label: `anything (${t('settingsPage.aiModels.models.anything')})` },
+  { value: 'pixart', label: `pixart (${t('settingsPage.aiModels.models.pixart')})` },
 ];
-const TEXT_MODELS = [
-  { value: 'openai', label: 'openai（GPT系列）' },
-  { value: 'mistral', label: 'mistral（Mistral LLM）' },
-  { value: 'gemini', label: 'gemini（Google Gemini）' },
+
+const getTextModels = (t: any) => [
+  { value: 'openai', label: `openai (${t('settingsPage.aiModels.models.openai')})` },
+  { value: 'mistral', label: `mistral (${t('settingsPage.aiModels.models.mistral')})` },
+  { value: 'gemini', label: `gemini (${t('settingsPage.aiModels.models.gemini')})` },
 ];
 
 function getLocalModel(key: string, defaultValue: string) {
@@ -46,6 +48,8 @@ export default function SettingsPage() {
   const { language, setLanguage, theme, setTheme, t } = useLanguage();
   const { isAuthenticated, user } = useAuth();
   const { toast } = useToast();
+
+
   const [isTesting, setIsTesting] = useState(false);
   const [imageModel, setImageModel] = useState(() => getLocalModel('pollinations_image_model', 'flux'));
   const [textModel, setTextModel] = useState(() => getLocalModel('pollinations_text_model', 'openai'));
@@ -81,25 +85,26 @@ export default function SettingsPage() {
   const handleImageModelChange = (value: string) => {
     setImageModel(value);
     setLocalModel('pollinations_image_model', value);
-    toast({ title: '图像生成模型已切换', description: `当前模型：${value}` });
+    toast({ title: t('settingsPage.aiModels.imageModelSwitched'), description: `${t('common.currentModel', { model: value })}` });
   };
   const handleTextModelChange = (value: string) => {
     setTextModel(value);
     setLocalModel('pollinations_text_model', value);
-    toast({ title: '文本生成模型已切换', description: `当前模型：${value}` });
+    toast({ title: t('settingsPage.aiModels.textModelSwitched'), description: `${t('common.currentModel', { model: value })}` });
   };
 
   return (
-    <div className="container mx-auto p-4 md:p-8">
+    <div className="container-center space-section">
       <header className="mb-10 text-center">
-        <h1 className="text-4xl md:text-5xl font-headline font-bold gradient-text halo-effect flex items-center justify-center">
+        <h1 className="text-4xl md:text-5xl font-bold energy-gradient flex items-center justify-center mb-4">
           <SettingsIcon className="mr-3 h-10 w-10" />
           {t('settingsPage.title')}
         </h1>
+
       </header>
 
-      <div className="max-w-md mx-auto grid gap-8">
-         <Card className="shadow-xl">
+      <div className="max-w-md mx-auto space-content">
+         <Card className="quantum-card">
           <CardHeader>
             <CardTitle className="flex items-center"><User className="mr-2 h-5 w-5 text-primary"/>{t('settingsPage.accountTitle')}</CardTitle>
             <CardDescription>{t('settingsPage.accountDescription')}</CardDescription>
@@ -129,10 +134,10 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        {/* 用户作品集统计 - 仅在用户登录时显示 */}
+        {/* {t('settingsPage.userGalleryStats')} - 仅在用户登录时显示 */}
         {isAuthenticated && <UserGalleryStats />}
 
-        <Card className="shadow-xl">
+        <Card className="quantum-card">
           <CardHeader>
             <CardTitle className="flex items-center"><Languages className="mr-2 h-5 w-5 text-primary"/>{t('settingsPage.language')}</CardTitle>
             <CardDescription>{t('settingsPage.selectLanguage')}</CardDescription>
@@ -156,7 +161,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-xl">
+        <Card className="quantum-card">
           <CardHeader>
             <CardTitle className="flex items-center"><Sun className="mr-2 h-5 w-5 text-primary"/>{t('settingsPage.theme')}</CardTitle>
             <CardDescription>{t('settingsPage.selectTheme')}</CardDescription>
@@ -186,7 +191,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-xl">
+        <Card className="quantum-card">
           <CardHeader>
             <CardTitle className="flex items-center"><Wifi className="mr-2 h-5 w-5 text-primary"/>{t('settingsPage.testConnectionTitle')}</CardTitle>
             <CardDescription>{t('settingsPage.testConnectionDescription')}</CardDescription>
@@ -199,58 +204,58 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-xl">
+        <Card className="quantum-card">
           <CardHeader>
             <CardTitle className="flex items-center">
               <Database className="mr-2 h-5 w-5 text-primary"/>
-              数据库管理
+              {t('settingsPage.databaseManagement.title')}
             </CardTitle>
             <CardDescription>
-              监控和修复数据库表结构与关联关系
+              {t('settingsPage.databaseManagement.description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <p className="text-sm text-gray-600">
-                如果遇到数据保存问题或功能异常，可以使用此工具诊断和修复数据库关联。
+              <p className="text-sm text-muted-foreground">
+                {t('settingsPage.databaseManagement.helpText')}
               </p>
               <Button variant="outline" asChild className="w-full">
                 <Link href="/database-management">
                   <Database className="mr-2 h-4 w-4" />
-                  数据库关联管理
+                  {t('settingsPage.databaseManagement.button')}
                 </Link>
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="mb-8">
+        <Card className="quantum-card">
           <CardHeader>
-            <CardTitle>AI模型设置</CardTitle>
-            <CardDescription>选择你想要体验的AI模型，随时一键切换！</CardDescription>
+            <CardTitle>{t('settingsPage.aiModels.title')}</CardTitle>
+            <CardDescription>{t('settingsPage.aiModels.description')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="mb-4">
-              <Label>图像生成模型</Label>
+              <Label>{t('settingsPage.aiModels.imageModelLabel')}</Label>
               <Select value={imageModel} onValueChange={handleImageModelChange}>
                 <SelectTrigger className="w-[240px]">
-                  <SelectValue placeholder="选择图像生成模型" />
+                  <SelectValue placeholder={t('settingsPage.aiModels.imageModelPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  {IMAGE_MODELS.map(m => (
+                  {getImageModels(t).map(m => (
                     <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label>文本生成模型</Label>
+              <Label>{t('settingsPage.aiModels.textModelLabel')}</Label>
               <Select value={textModel} onValueChange={handleTextModelChange}>
                 <SelectTrigger className="w-[240px]">
-                  <SelectValue placeholder="选择文本生成模型" />
+                  <SelectValue placeholder={t('settingsPage.aiModels.textModelPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  {TEXT_MODELS.map(m => (
+                  {getTextModels(t).map(m => (
                     <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
                   ))}
                 </SelectContent>
@@ -266,11 +271,16 @@ export default function SettingsPage() {
                   setToken(e.target.value);
                   setLocalModel('pollinations_token', e.target.value);
                 }}
-                placeholder="请输入你的Pollinations API Token"
+                placeholder={t('settingsPage.aiModels.tokenPlaceholder')}
               />
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* {t('settingsPage.themeTest')} */}
+      <div className="mt-12">
+        <ThemeTestComponent />
       </div>
     </div>
   );

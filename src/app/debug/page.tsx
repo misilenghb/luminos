@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { testSupabaseConnection } from '@/lib/supabase';
-import { createClient } from '@supabase/supabase-js';
+import { testSupabaseConnection, supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import SystemHealthDashboard from '@/components/SystemHealthDashboard';
@@ -105,12 +104,11 @@ export default function DebugPage() {
         return;
       }
 
-      // 手动创建 Supabase 客户端
-      const manualClient = createClient(supabaseUrl, supabaseAnonKey);
-      logs.push('[MANUAL] ✅ 手动创建客户端成功');
+      // 使用共享的 Supabase 客户端
+      logs.push('[MANUAL] ✅ 使用共享客户端');
 
       // 测试认证
-      const { data: authData, error: authError } = await manualClient.auth.getSession();
+      const { data: authData, error: authError } = await supabase.auth.getSession();
       if (authError) {
         logs.push(`[MANUAL] ❌ 认证失败: ${JSON.stringify(authError)}`);
       } else {
@@ -118,7 +116,7 @@ export default function DebugPage() {
       }
 
       // 测试数据库查询
-      const { data, error } = await manualClient
+      const { data, error } = await supabase
         .from('user_energy_records')
         .select('id')
         .limit(1);

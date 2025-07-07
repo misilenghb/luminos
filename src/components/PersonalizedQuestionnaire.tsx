@@ -114,6 +114,9 @@ const fullQuestionnaireFormSchema = z.object({
   currentStatus: currentStatusSchema,
 });
 
+// Type for the form that matches the schema
+type FormSchemaType = z.infer<typeof fullQuestionnaireFormSchema>;
+
 
 interface PersonalizedQuestionnaireProps {
   setProfileData: (data: UserProfileData | null) => void;
@@ -142,6 +145,7 @@ const pageVariants = {
 // 本地存储键名
 const QUESTIONNAIRE_STORAGE_KEY = 'questionnaire_progress';
 const CURRENT_STEP_STORAGE_KEY = 'questionnaire_current_step';
+const PROGRESS_RESTORED_KEY = 'questionnaire_progress_restored';
 
 // 加载本地存储的问卷数据
 const loadStoredFormData = (): Partial<QuestionnaireFormValues> | null => {
@@ -160,7 +164,7 @@ const saveFormDataToStorage = (data: QuestionnaireFormValues) => {
   try {
     localStorage.setItem(QUESTIONNAIRE_STORAGE_KEY, JSON.stringify(data));
   } catch (error) {
-    console.warn('无法保存问卷进度到本地存储:', error);
+    console.warn('Unable to save questionnaire progress to local storage:', error);
   }
 };
 
@@ -192,8 +196,9 @@ const clearStoredFormData = () => {
   try {
     localStorage.removeItem(QUESTIONNAIRE_STORAGE_KEY);
     localStorage.removeItem(CURRENT_STEP_STORAGE_KEY);
+    sessionStorage.removeItem(PROGRESS_RESTORED_KEY);
   } catch (error) {
-    console.warn('无法清除本地存储的问卷数据:', error);
+    console.warn('Unable to clear questionnaire data from local storage:', error);
   }
 };
 
@@ -209,7 +214,7 @@ const PersonalizedQuestionnaire: React.FC<PersonalizedQuestionnaireProps> = ({ s
   const [showEnhancedAssessmentDialog, setShowEnhancedAssessmentDialog] = useState(false);
   const [basicAssessmentResult, setBasicAssessmentResult] = useState<UserProfileData | null>(null);
   const [showEnhancedQuestionnaire, setShowEnhancedQuestionnaire] = useState(false);
-  const [formDataSnapshot, setFormDataSnapshot] = useState<Partial<QuestionnaireFormValues>>({});
+  const [formDataSnapshot, setFormDataSnapshot] = useState<Partial<FormSchemaType>>({});
 
   const defaultChakraAnswers: ChakraQuestionnaireAnswers = {
     root: [0, 0, 0, 0],
@@ -260,8 +265,8 @@ const PersonalizedQuestionnaire: React.FC<PersonalizedQuestionnaireProps> = ({ s
     },
   } as QuestionnaireFormValues;
 
-  const { control, handleSubmit, trigger, formState: { errors, isValid: isFormValid }, getValues, setValue, reset, watch } = useForm<QuestionnaireFormValues>({
-    resolver: zodResolver(fullQuestionnaireFormSchema), 
+  const { control, handleSubmit, trigger, formState: { errors, isValid: isFormValid }, getValues, setValue, reset, watch } = useForm<FormSchemaType>({
+    resolver: zodResolver(fullQuestionnaireFormSchema),
     mode: "onChange", // 恢复实时验证，现在有了有效的默认值
     defaultValues: defaultFormValues,
   });
@@ -276,20 +281,28 @@ const PersonalizedQuestionnaire: React.FC<PersonalizedQuestionnaireProps> = ({ s
     if (typeof window !== 'undefined' && !isInitialized) {
       const storedData = loadStoredFormData();
       const storedStep = loadStoredCurrentStep();
-      
+
       if (storedData) {
-        // 显示恢复进度的提示
-        toast({
-          title: "已恢复答题进度",
-          description: "检测到您之前的答题进度，已为您自动恢复。",
-          variant: "default",
-        });
-        
+        // 检查是否已经显示过恢复提示
+        const hasShownRestoreToast = sessionStorage.getItem(PROGRESS_RESTORED_KEY);
+
+        if (!hasShownRestoreToast) {
+          // 只在会话中第一次显示恢复进度的提示
+          toast({
+            title: "已恢复答题进度",
+            description: "检测到您之前的答题进度，已为您自动恢复。",
+            variant: "default",
+          });
+
+          // 标记已显示过恢复提示（仅在当前会话中有效）
+          sessionStorage.setItem(PROGRESS_RESTORED_KEY, 'true');
+        }
+
         // 重置表单数据
         reset({ ...defaultFormValues, ...storedData });
         setCurrentStep(storedStep);
       }
-      
+
       setIsInitialized(true);
     }
   }, [isInitialized, reset, toast, defaultFormValues]);
@@ -468,26 +481,26 @@ const PersonalizedQuestionnaire: React.FC<PersonalizedQuestionnaireProps> = ({ s
     });
   };
   
-  const onSubmit: SubmitHandler<QuestionnaireFormValues> = async (data) => {
+  const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     setIsAnalyzing(true);
     setProfileData(null);
     
     let finalMbtiResult = undefined;
-    if (data.mbtiAnswers && areMbtiAnswersComplete(data.mbtiAnswers)) {
-      finalMbtiResult = calculateMbtiType(data.mbtiAnswers);
+    if (data.mbtiAnswers && areMbtiAnswersComplete(data.mbtiAnswers as MbtiQuestionnaireAnswers)) {
+      finalMbtiResult = calculateMbtiType(data.mbtiAnswers as MbtiQuestionnaireAnswers);
     }
 
     let finalChakraScores = undefined;
-    if (data.chakraAnswers && areChakraAnswersComplete(data.chakraAnswers)) {
-      finalChakraScores = calculateChakraScores(data.chakraAnswers);
+    if (data.chakraAnswers && areChakraAnswersComplete(data.chakraAnswers as ChakraQuestionnaireAnswers)) {
+      finalChakraScores = calculateChakraScores(data.chakraAnswers as ChakraQuestionnaireAnswers);
     }
 
     try {
       const aiInput: FullQuestionnaireDataInput = {
         basicInfo: data.basicInfo,
-        mbtiAnswers: (data.mbtiAnswers && areMbtiAnswersComplete(data.mbtiAnswers) ? data.mbtiAnswers : undefined) as any,
+        mbtiAnswers: (data.mbtiAnswers && areMbtiAnswersComplete(data.mbtiAnswers as MbtiQuestionnaireAnswers) ? data.mbtiAnswers as MbtiQuestionnaireAnswers : undefined),
         calculatedMbtiType: finalMbtiResult?.type,
-        chakraAssessment: finalChakraScores,
+        chakraAssessment: finalChakraScores || undefined,
         lifestylePreferences: data.lifestylePreferences,
         currentStatus: data.currentStatus,
         language: language
@@ -665,12 +678,12 @@ const PersonalizedQuestionnaire: React.FC<PersonalizedQuestionnaireProps> = ({ s
                         <div key={qItem.key} className="p-4 border rounded-md bg-card/50 shadow-sm">
                             <Label htmlFor={`${qItem.key}-A`} className="block mb-3 text-sm font-normal leading-snug">{index + 1}. {qItem.question}</Label>
                             <Controller
-                                name={qItem.formKey}
+                                name={qItem.formKey as any}
                                 control={control}
                                 render={({ field }) => (
                                     <RadioGroup 
                                       onValueChange={(value) => field.onChange(value || undefined)} 
-                                      value={field.value || ""} 
+                                      value={typeof field.value === 'string' ? field.value : ""}
                                       className="mt-2 space-y-3"
                                     >
                                         <div className="flex items-center space-x-2">
@@ -805,6 +818,7 @@ const PersonalizedQuestionnaire: React.FC<PersonalizedQuestionnaireProps> = ({ s
                           fromYear={1920}
                           toYear={new Date().getFullYear()}
                           initialFocus
+                          className="w-full"
                         />
                       </PopoverContent>
                     </Popover>
@@ -1045,10 +1059,10 @@ const PersonalizedQuestionnaire: React.FC<PersonalizedQuestionnaireProps> = ({ s
           </DialogHeader>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={handleEnhancedAssessmentDecline}>
-              暂时不需要
+              {t('energyExplorationPage.questionnaire.enhancedAssessment.declineButton')}
             </Button>
             <Button onClick={handleEnhancedAssessmentAccept}>
-              开始深度评估 ✨
+              {t('energyExplorationPage.questionnaire.enhancedAssessment.acceptButton')}
             </Button>
           </DialogFooter>
         </DialogContent>

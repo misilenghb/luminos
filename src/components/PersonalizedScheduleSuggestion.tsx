@@ -233,7 +233,7 @@ const generatePersonalizedSchedule = (date: Date, profile?: UserProfileDataOutpu
   
   if (profile) {
     // 根据MBTI类型调整日程
-    if (profile.mbti?.includes('I')) {
+    if (profile.mbtiLikeType?.includes('I')) {
       // 内向型：减少社交活动，增加独处时间
       schedule.blocks = schedule.blocks.map(block => {
         if (block.category === 'social') {
@@ -250,9 +250,9 @@ const generatePersonalizedSchedule = (date: Date, profile?: UserProfileDataOutpu
     }
     
     // 根据能量元素调整日程
-    if (profile.element) {
+    if (profile.inferredElement) {
       let elementActivity = '';
-      switch (profile.element.toLowerCase()) {
+      switch (profile.inferredElement.toLowerCase()) {
         case 'fire':
         case '火':
           elementActivity = '充满活力的运动或创意活动';
@@ -411,7 +411,7 @@ const PersonalizedScheduleSuggestion: React.FC<PersonalizedScheduleSuggestionPro
               selected={selectedDate}
               onSelect={handleDateSelect}
               locale={zhCN}
-              className="rounded-md border-0"
+              className="rounded-md border-0 w-full"
             />
         </CardContent>
       </Card>

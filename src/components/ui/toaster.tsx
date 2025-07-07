@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import {
   Toast,
@@ -12,6 +13,16 @@ import {
 
 export function Toaster() {
   const { toasts } = useToast()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // 避免水合错误：在客户端挂载前不渲染
+  if (!mounted) {
+    return null
+  }
 
   return (
     <ToastProvider>

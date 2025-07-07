@@ -1,0 +1,97 @@
+{
+  "name": "水晶日历 - 身心灵能量管理",
+  "short_name": "水晶日历",
+  "description": "基于MBTI和脉轮分析的个性化能量管理应用",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8b5cf6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "zh-CN",
+  "categories": ["lifestyle", "health", "productivity"],
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512x512.png", 
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "水晶日历桌面版截图"
+    },
+    {
+      "src": "/screenshot-narrow.png", 
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "水晶日历移动版截图"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "今日专注",
+      "short_name": "专注",
+      "description": "查看今日专注任务和能量状态",
+      "url": "/daily-focus",
+      "icons": [
+        {
+          "src": "/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "能量分析",
+      "short_name": "能量",
+      "description": "查看能量趋势和分析",
+      "url": "/energy-exploration", 
+      "icons": [
+        {
+          "src": "/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "个人仪表板",
+      "short_name": "仪表板",
+      "description": "查看个性化仪表板和AI洞察",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/icon-192x192.png", 
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+crystalcalendar",
+      "url": "/?action=%s"
+    }
+  ]
+}

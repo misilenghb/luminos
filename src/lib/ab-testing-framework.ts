@@ -431,7 +431,7 @@ export class ABTestingFramework {
       const metrics: Record<string, MetricResult> = {};
       
       for (const metric of experiment.target_metrics) {
-        const metricResult = this.calculateMetricResult(metric, variants, events || []);
+        const metricResult = this.calculateMetricResult(metric, variants, (events || []) as ExperimentEvent[]);
         metrics[metric] = metricResult;
       }
 

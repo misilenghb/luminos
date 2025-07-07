@@ -8,173 +8,430 @@ body {
 
 @layer base {
   :root {
+    /* 量子共振主题 - 默认(正午) */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 220 39% 11%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 39% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    --popover-foreground: 220 39% 11%;
+
+    /* 主色调 - 量子蓝 */
+    --primary: 220 85% 60%;
+    --primary-light: 220 85% 70%;
+    --primary-dark: 220 85% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    /* 次要色调 - 能量紫 */
+    --secondary: 270 70% 60%;
+    --secondary-light: 270 70% 70%;
+    --secondary-dark: 270 70% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* 强调色调 - 生命绿 */
+    --accent: 150 60% 55%;
+    --accent-warm: 45 85% 65%;
+    --accent-cool: 200 85% 65%;
+    --accent-foreground: 0 0% 100%;
+
+    /* 中性色调 */
+    --muted: 220 15% 96%;
+    --muted-foreground: 220 15% 45%;
+    --border: 220 15% 90%;
+    --input: 220 15% 95%;
+    --ring: 220 85% 60%;
+
+    /* 功能色彩 */
+    --success: 160 84% 39%;
+    --warning: 38 92% 50%;
+    --destructive: 0 84% 60%;
+    --info: 200 98% 39%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* 图表色彩 */
+    --chart-1: 220 85% 60%;
+    --chart-2: 270 70% 60%;
+    --chart-3: 150 60% 55%;
+    --chart-4: 45 85% 65%;
+    --chart-5: 200 85% 65%;
+
+    /* 设计系统 */
+    --radius: 0.75rem;
+    --shadow-rgb: 220 39% 11%;
+    --background-rgb: 255 255 255;
+    --border-rgb: 220 15% 90%;
+    --primary-rgb: 74 144 226;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    /* 夜晚主题 - 深邃神秘 */
+    --background: 220 25% 12%;
+    --foreground: 220 15% 95%;
+    --card: 220 25% 16%;
+    --card-foreground: 220 15% 95%;
+    --popover: 220 25% 14%;
+    --popover-foreground: 220 15% 95%;
+
+    /* 主色调 - 发光蓝 */
+    --primary: 220 85% 75%;
+    --primary-light: 220 85% 85%;
+    --primary-dark: 220 85% 65%;
+    --primary-foreground: 220 25% 12%;
+
+    /* 次要色调 - 发光紫 */
+    --secondary: 270 70% 75%;
+    --secondary-light: 270 70% 85%;
+    --secondary-dark: 270 70% 65%;
+    --secondary-foreground: 220 25% 12%;
+
+    /* 强调色调 - 月光蓝 */
+    --accent: 200 85% 65%;
+    --accent-warm: 45 85% 65%;
+    --accent-cool: 200 85% 65%;
+    --accent-foreground: 220 25% 12%;
+
+    /* 中性色调 */
+    --muted: 220 15% 20%;
+    --muted-foreground: 220 15% 70%;
+    --border: 220 15% 25%;
+    --input: 220 15% 18%;
+    --ring: 220 85% 75%;
+
+    /* 功能色彩 */
+    --success: 160 84% 45%;
+    --warning: 38 92% 55%;
+    --destructive: 0 84% 65%;
+    --info: 200 98% 45%;
+    --destructive-foreground: 220 25% 12%;
+
+    /* 图表色彩 */
+    --chart-1: 220 85% 75%;
+    --chart-2: 270 70% 75%;
+    --chart-3: 200 85% 65%;
+    --chart-4: 45 85% 65%;
+    --chart-5: 160 60% 55%;
+
+    /* 设计系统 */
+    --shadow-rgb: 0 0 0;
+    --background-rgb: 31 41 55;
+    --border-rgb: 55 65 81;
+    --primary-rgb: 147 197 253;
   }
 
   [data-theme='night'] {
-    --background: 210 20% 15%;
-    --foreground: 0 0% 98%;
-    --card: 210 20% 20%;
-    --card-foreground: 0 0% 95%;
-    --popover: 210 20% 18%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 210 60% 60%;
-    --primary-foreground: 210 20% 10%;
-    --secondary: 180 50% 30%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 210 15% 30%;
-    --muted-foreground: 210 15% 65%;
-    --accent: 180 50% 50%;
-    --accent-foreground: 210 20% 10%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 210 20% 30%;
-    --input: 210 20% 25%;
-    --ring: 210 60% 70%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    /* 深夜主题 - 极致深邃 */
+    --background: 220 30% 8%;
+    --foreground: 220 15% 98%;
+    --card: 220 30% 12%;
+    --card-foreground: 220 15% 98%;
+    --popover: 220 30% 10%;
+    --popover-foreground: 220 15% 98%;
+
+    /* 主色调 - 极光蓝 */
+    --primary: 220 85% 80%;
+    --primary-light: 220 85% 90%;
+    --primary-dark: 220 85% 70%;
+    --primary-foreground: 220 30% 8%;
+
+    /* 次要色调 - 极光紫 */
+    --secondary: 270 70% 80%;
+    --secondary-light: 270 70% 90%;
+    --secondary-dark: 270 70% 70%;
+    --secondary-foreground: 220 30% 8%;
+
+    /* 强调色调 - 星光蓝 */
+    --accent: 200 85% 70%;
+    --accent-warm: 45 85% 70%;
+    --accent-cool: 200 85% 70%;
+    --accent-foreground: 220 30% 8%;
+
+    /* 中性色调 */
+    --muted: 220 20% 15%;
+    --muted-foreground: 220 15% 75%;
+    --border: 220 20% 20%;
+    --input: 220 20% 12%;
+    --ring: 220 85% 80%;
+
+    /* 功能色彩 */
+    --success: 160 84% 50%;
+    --warning: 38 92% 60%;
+    --destructive: 0 84% 70%;
+    --info: 200 98% 50%;
+    --destructive-foreground: 220 30% 8%;
+
+    /* 图表色彩 */
+    --chart-1: 220 85% 80%;
+    --chart-2: 270 70% 80%;
+    --chart-3: 200 85% 70%;
+    --chart-4: 45 85% 70%;
+    --chart-5: 160 60% 60%;
+
+    /* 设计系统 */
+    --shadow-rgb: 0 0 0;
+    --background-rgb: 20 25 35;
+    --border-rgb: 45 55 75;
+    --primary-rgb: 165 215 255;
   }
 
   [data-theme='morning'] {
-    --background: 0 0% 100%;
-    --foreground: 224 71.4% 4.1%;
-    --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 71.4% 4.1%;
-    --primary: 220 90% 60%;
+    /* 晨曦主题 - 温暖启发 */
+    --background: 45 100% 97%;
+    --foreground: 220 39% 11%;
+    --card: 45 100% 98%;
+    --card-foreground: 220 39% 11%;
+    --popover: 45 100% 98%;
+    --popover-foreground: 220 39% 11%;
+
+    /* 主色调保持量子蓝 */
+    --primary: 220 85% 65%;
+    --primary-light: 220 85% 75%;
+    --primary-dark: 220 85% 55%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 220 8.9% 46.1%;
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
-    --accent: 45 90% 60%;
-    --accent-foreground: 224 71.4% 4.1%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 220 90% 60%;
-    --chart-1: 220 75% 55%;
-    --chart-2: 45 90% 65%;
-    --chart-3: 10 80% 60%;
-    --chart-4: 170 60% 50%;
-    --chart-5: 350 80% 65%;
+
+    /* 次要色调 - 能量紫 */
+    --secondary: 270 70% 65%;
+    --secondary-light: 270 70% 75%;
+    --secondary-dark: 270 70% 55%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* 强调色调 - 晨光金 */
+    --accent: 45 85% 65%;
+    --accent-warm: 45 85% 65%;
+    --accent-cool: 200 85% 65%;
+    --accent-foreground: 220 39% 11%;
+
+    /* 中性色调 */
+    --muted: 45 50% 92%;
+    --muted-foreground: 220 15% 35%;
+    --border: 45 50% 88%;
+    --input: 45 50% 90%;
+    --ring: 220 85% 65%;
+
+    /* 功能色彩 */
+    --success: 160 84% 39%;
+    --warning: 38 92% 50%;
+    --destructive: 0 84% 60%;
+    --info: 200 98% 39%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* 图表色彩 */
+    --chart-1: 220 85% 65%;
+    --chart-2: 270 70% 65%;
+    --chart-3: 45 85% 65%;
+    --chart-4: 160 60% 55%;
+    --chart-5: 200 85% 65%;
+
+    /* 设计系统 */
+    --shadow-rgb: 220 39% 11%;
+    --background-rgb: 255 252 240;
+    --border-rgb: 237 213 179;
+    --primary-rgb: 106 163 232;
   }
 
   [data-theme='noon'] {
+    /* 正午主题 - 清晰明亮 (默认主题) */
     --background: 0 0% 100%;
-    --foreground: 220 15% 10%;
-    --card: 210 20% 98%;
-    --card-foreground: 220 15% 10%;
+    --foreground: 220 39% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 39% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 10%;
-    --primary: 215 90% 55%;
+    --popover-foreground: 220 39% 11%;
+
+    /* 主色调 - 量子蓝 */
+    --primary: 220 85% 60%;
+    --primary-light: 220 85% 70%;
+    --primary-dark: 220 85% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 20% 90%;
-    --secondary-foreground: 220 15% 10%;
-    --muted: 210 20% 94%;
-    --muted-foreground: 220 10% 40%;
-    --accent: 50 100% 50%;
-    --accent-foreground: 220 15% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 210 20% 88%;
-    --input: 210 20% 93%;
-    --ring: 215 90% 55%;
-    --chart-1: 215 90% 55%;
-    --chart-2: 50 100% 50%;
-    --chart-3: 10 80% 55%;
-    --chart-4: 160 70% 45%;
-    --chart-5: 280 70% 60%;
+
+    /* 次要色调 - 能量紫 */
+    --secondary: 270 70% 60%;
+    --secondary-light: 270 70% 70%;
+    --secondary-dark: 270 70% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* 强调色调 - 生命绿 */
+    --accent: 150 60% 55%;
+    --accent-warm: 45 85% 65%;
+    --accent-cool: 200 85% 65%;
+    --accent-foreground: 0 0% 100%;
+
+    /* 中性色调 */
+    --muted: 220 15% 96%;
+    --muted-foreground: 220 15% 45%;
+    --border: 220 15% 90%;
+    --input: 220 15% 95%;
+    --ring: 220 85% 60%;
+
+    /* 功能色彩 */
+    --success: 160 84% 39%;
+    --warning: 38 92% 50%;
+    --destructive: 0 84% 60%;
+    --info: 200 98% 39%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* 图表色彩 */
+    --chart-1: 220 85% 60%;
+    --chart-2: 270 70% 60%;
+    --chart-3: 150 60% 55%;
+    --chart-4: 45 85% 65%;
+    --chart-5: 200 85% 65%;
+
+    /* 设计系统 */
+    --shadow-rgb: 220 39% 11%;
+    --background-rgb: 255 255 255;
+    --border-rgb: 220 15% 90%;
+    --primary-rgb: 74 144 226;
   }
 
   [data-theme='dusk'] {
-    --background: 240 10% 15%;
-    --foreground: 30 30% 92%;
-    --card: 240 10% 20%;
-    --card-foreground: 30 30% 95%;
-    --popover: 240 10% 18%;
-    --popover-foreground: 30 30% 95%;
-    --primary: 25 95% 60%;
-    --primary-foreground: 25 20% 10%;
-    --secondary: 240 8% 25%;
-    --secondary-foreground: 30 30% 98%;
-    --muted: 240 8% 30%;
-    --muted-foreground: 240 5% 65%;
-    --accent: 260 50% 65%;
-    --accent-foreground: 260 20% 98%;
-    --destructive: 0 70% 55%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 10% 30%;
-    --input: 240 10% 25%;
-    --ring: 25 95% 70%;
-    --chart-1: 25 95% 60%;
-    --chart-2: 260 50% 65%;
-    --chart-3: 320 60% 60%;
-    --chart-4: 190 50% 55%;
-    --chart-5: 50 80% 60%;
+    /* 黄昏主题 - 温暖深邃 */
+    --background: 25 25% 15%;
+    --foreground: 45 35% 90%;
+    --card: 25 25% 18%;
+    --card-foreground: 45 35% 90%;
+    --popover: 25 25% 16%;
+    --popover-foreground: 45 35% 90%;
+
+    /* 主色调 - 明亮蓝 */
+    --primary: 220 85% 70%;
+    --primary-light: 220 85% 80%;
+    --primary-dark: 220 85% 60%;
+    --primary-foreground: 25 25% 15%;
+
+    /* 次要色调 - 明亮紫 */
+    --secondary: 270 70% 70%;
+    --secondary-light: 270 70% 80%;
+    --secondary-dark: 270 70% 60%;
+    --secondary-foreground: 25 25% 15%;
+
+    /* 强调色调 - 黄昏橙 */
+    --accent: 25 85% 65%;
+    --accent-warm: 25 85% 65%;
+    --accent-cool: 200 85% 65%;
+    --accent-foreground: 25 25% 15%;
+
+    /* 中性色调 */
+    --muted: 25 15% 25%;
+    --muted-foreground: 45 15% 70%;
+    --border: 25 15% 30%;
+    --input: 25 15% 20%;
+    --ring: 220 85% 70%;
+
+    /* 功能色彩 */
+    --success: 160 84% 45%;
+    --warning: 38 92% 55%;
+    --destructive: 0 84% 65%;
+    --info: 200 98% 45%;
+    --destructive-foreground: 25 25% 15%;
+
+    /* 图表色彩 */
+    --chart-1: 220 85% 70%;
+    --chart-2: 270 70% 70%;
+    --chart-3: 25 85% 65%;
+    --chart-4: 160 60% 55%;
+    --chart-5: 200 85% 65%;
+
+    /* 设计系统 */
+    --shadow-rgb: 0 0 0;
+    --background-rgb: 38 30 25;
+    --border-rgb: 64 51 38;
+    --primary-rgb: 125 177 235;
   }
 
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+    /* 优化字体渲染 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "kern" 1;
+    font-variant-ligatures: common-ligatures;
+  }
+
+  /* 全局字体优化 */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+  }
+
+  p, span, div {
+    line-height: 1.6;
+  }
+
+  /* 确保文本在所有主题下都有足够的对比度 */
+  .text-contrast-high {
+    color: hsl(var(--foreground));
+    font-weight: 500;
+  }
+
+  .text-contrast-medium {
+    color: hsl(var(--muted-foreground));
+    font-weight: 400;
+  }
+
+  .text-contrast-low {
+    color: hsl(var(--muted-foreground));
+    opacity: 0.8;
+    font-weight: 400;
+  }
+
+  /* 主题特定的文本优化 */
+  [data-theme='morning'] .text-enhanced {
+    color: hsl(224 71.4% 2%);
+    font-weight: 500;
+  }
+
+  [data-theme='noon'] .text-enhanced {
+    color: hsl(220 20% 5%);
+    font-weight: 500;
+  }
+
+  [data-theme='dusk'] .text-enhanced {
+    color: hsl(30 35% 95%);
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  [data-theme='night'] .text-enhanced {
+    color: hsl(0 0% 98%);
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+
+  /* 卡片内容文本优化 */
+  .card-text-primary {
+    color: hsl(var(--card-foreground));
+    font-weight: 500;
+  }
+
+  .card-text-secondary {
+    color: hsl(var(--muted-foreground));
+    font-weight: 400;
+  }
+
+  /* 按钮文本优化 */
+  .btn-text-primary {
+    color: hsl(var(--primary-foreground));
+    font-weight: 500;
+  }
+
+  /* 小文本优化 */
+  .text-xs-enhanced {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.025em;
+  }
+
+  /* 标题文本优化 */
+  .heading-enhanced {
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    color: hsl(var(--foreground));
   }
 
   .rdp-caption_dropdowns select {
@@ -398,6 +655,83 @@ body {
     @apply text-purple-400 bg-purple-950 border-purple-800;
   }
 
+  /* 深色主题下的文本增强 */
+  .dark .text-enhanced,
+  [data-theme='dusk'] .text-enhanced,
+  [data-theme='night'] .text-enhanced {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+
+  /* 深色主题下的卡片文本优化 */
+  .dark .card-text-primary,
+  [data-theme='dusk'] .card-text-primary,
+  [data-theme='night'] .card-text-primary {
+    color: hsl(var(--card-foreground));
+    font-weight: 500;
+  }
+
+  /* 深色主题下的小文本优化 */
+  .dark .text-xs,
+  [data-theme='dusk'] .text-xs,
+  [data-theme='night'] .text-xs {
+    font-weight: 500;
+    opacity: 0.9;
+  }
+
+  /* 深色主题下的渐变背景文本优化 */
+  [data-theme='dusk'] .bg-gradient-to-br,
+  [data-theme='night'] .bg-gradient-to-br {
+    backdrop-filter: blur(1px);
+  }
+
+  [data-theme='dusk'] .bg-gradient-to-br .text-sm,
+  [data-theme='night'] .bg-gradient-to-br .text-sm {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  /* 按钮文本在深色主题下的优化 */
+  [data-theme='dusk'] .btn-text-primary,
+  [data-theme='night'] .btn-text-primary {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+
+  /* 卡片标题在深色主题下的优化 */
+  [data-theme='dusk'] .heading-enhanced,
+  [data-theme='night'] .heading-enhanced {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    font-weight: 600;
+  }
+
+  /* 浅色主题下的文本优化 */
+  [data-theme='morning'] .card-text-secondary,
+  [data-theme='noon'] .card-text-secondary {
+    color: hsl(var(--muted-foreground));
+    font-weight: 500;
+  }
+
+  /* 确保在所有主题下都有足够的对比度 */
+  .text-readable {
+    color: hsl(var(--foreground));
+    font-weight: 500;
+  }
+
+  .text-readable-secondary {
+    color: hsl(var(--muted-foreground));
+    font-weight: 400;
+  }
+
+  /* 特殊情况下的高对比度文本 */
+  .text-high-contrast {
+    color: hsl(var(--foreground));
+    font-weight: 600;
+    letter-spacing: 0.025em;
+  }
+
+  [data-theme='dusk'] .text-high-contrast,
+  [data-theme='night'] .text-high-contrast {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  }
+
   /* 元素色彩系统 */
   .element-fire {
     @apply text-red-600 bg-red-50 border-red-200;
@@ -575,6 +909,211 @@ body {
 
   .notification-error {
     @apply bg-gradient-to-r from-red-500 to-pink-600 text-white;
+  }
+
+  /* 全站统一设计系统 - 简化动效系统 */
+
+  /* 量子卡片 - 统一卡片样式 */
+  .quantum-card {
+    @apply bg-card border border-border/50 rounded-xl shadow-sm;
+    @apply transition-all duration-300 ease-in-out;
+    @apply backdrop-blur-sm;
+  }
+
+  /* 能量卡片 - 特殊效果卡片 */
+  .energy-card {
+    @apply relative overflow-hidden;
+    background: linear-gradient(135deg,
+      hsl(var(--card)) 0%,
+      hsl(var(--primary) / 0.02) 50%,
+      hsl(var(--secondary) / 0.02) 100%);
+  }
+
+  /* 悬停效果 - 移除过度动画 */
+  .quantum-hover {
+    @apply hover:shadow-md hover:scale-[1.02];
+    @apply transition-all duration-200 ease-out;
+  }
+
+  /* 保留静态渐变效果 */
+  .energy-gradient {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--accent)));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  /* 标题增强 - 统一标题样式 */
+  .heading-enhanced {
+    @apply font-semibold tracking-tight;
+    background: linear-gradient(135deg,
+      hsl(var(--foreground)) 0%,
+      hsl(var(--primary)) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  /* 移除动画的量子脉冲 - 改为静态强调 */
+  .quantum-pulse {
+    @apply ring-2 ring-primary/20 ring-offset-2;
+  }
+
+  /* 移除动画的共振元素 - 改为静态样式 */
+  .resonance-element {
+    @apply shadow-sm;
+  }
+
+  /* 视觉层次系统 */
+  .hierarchy-primary {
+    @apply bg-background border border-border rounded-xl p-6 shadow-sm;
+  }
+
+  .hierarchy-secondary {
+    @apply bg-muted/30 border border-border/50 rounded-lg p-4;
+  }
+
+  .hierarchy-tertiary {
+    @apply bg-background/70 border border-border/30 rounded-lg p-3;
+  }
+
+  /* 实用工具类 */
+  .container-center {
+    @apply container mx-auto px-4;
+  }
+
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .flex-between {
+    @apply flex items-center justify-between;
+  }
+
+  .space-section {
+    @apply space-y-6;
+  }
+
+  .space-content {
+    @apply space-y-4;
+  }
+
+  .space-compact {
+    @apply space-y-2;
+  }
+
+  /* 量子卡片系统 */
+  .quantum-card {
+    background: rgba(var(--background-rgb), 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(var(--border-rgb), 0.2);
+    border-radius: 16px;
+    box-shadow:
+      0 4px 20px rgba(var(--shadow-rgb), 0.1),
+      0 1px 3px rgba(var(--shadow-rgb), 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .quantum-card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 8px 40px rgba(var(--shadow-rgb), 0.15),
+      0 2px 6px rgba(var(--shadow-rgb), 0.1);
+  }
+
+  /* 能量卡片 */
+  .energy-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .energy-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, hsl(var(--primary)), transparent);
+    animation: energy-scan 3s ease-in-out infinite;
+  }
+
+  /* 量子按钮系统 */
+  .quantum-button-primary {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .quantum-button-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .quantum-button-primary:hover::before {
+    left: 100%;
+  }
+
+  .quantum-button-secondary {
+    background: transparent;
+    color: hsl(var(--primary));
+    border: 2px solid hsl(var(--primary));
+    border-radius: 12px;
+    padding: 10px 22px;
+    font-weight: 500;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .quantum-button-secondary:hover {
+    background: hsl(var(--primary));
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  /* 量子交互效果 */
+  .quantum-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .quantum-hover:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(var(--primary-rgb), 0.2);
+  }
+
+  .quantum-click {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .quantum-click::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(var(--primary-rgb), 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  .quantum-click:active::after {
+    width: 300px;
+    height: 300px;
   }
 
   /* 个人化主题变量 */

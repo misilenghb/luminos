@@ -229,7 +229,7 @@ export default function PromptBar({
         </DialogContent>
       </Dialog>
       
-      <Button variant="ghost" size="icon" onClick={handleCopyPrompt} disabled={!prompt} title={t('promptInputBar.copy')}>
+      <Button variant="ghost" size="icon" onClick={() => handleCopyPrompt(prompt)} disabled={!prompt} title={t('promptInputBar.copy')}>
         {isCopied ? <Check className="h-5 w-5 text-green-500" /> : <Copy className="h-5 w-5" />}
       </Button>
       <Button variant="ghost" size="icon" onClick={handleTranslate} disabled={isTranslating || !prompt} title={t('promptInputBar.translate')}>

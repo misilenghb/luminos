@@ -245,7 +245,7 @@ export class MLPredictionCache {
 
   // 生成内容推荐
   private generateContentRecommendations(designPrefs: any[], crystalAffinity: any[]) {
-    const recommendations = [];
+    const recommendations: any[] = [];
 
     // 基于设计偏好推荐
     designPrefs.slice(0, 2).forEach(pref => {
@@ -393,7 +393,7 @@ export class MLPredictionCache {
     
     if (!prediction) {
       // 从Edge缓存获取
-      prediction = await this.edgeCache.get(`ml_predictions:${userId}`);
+      prediction = await this.edgeCache.get(`ml_predictions:${userId}`) || undefined;
       
       if (prediction) {
         this.predictionCache.set(userId, prediction);

@@ -8,9 +8,9 @@ export default function EnergyExplorationPage() {
   const { t } = useLanguage();
 
   return (
-    <div className="container mx-auto p-4 md:p-8">
+    <div className="container-center space-section">
       <header className="mb-10 text-center">
-        <h1 className="text-4xl md:text-5xl font-headline font-bold gradient-text halo-effect">
+        <h1 className="text-4xl md:text-5xl font-bold energy-gradient mb-4">
           {t('energyExplorationPage.title')}
         </h1>
         <p className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">

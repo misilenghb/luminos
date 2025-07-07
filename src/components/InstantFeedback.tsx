@@ -9,7 +9,7 @@ import type { QuestionnaireFormValues } from '@/types/questionnaire';
 
 interface InstantFeedbackProps {
   step: number;
-  formData: Partial<QuestionnaireFormValues>;
+  formData: Partial<QuestionnaireFormValues> | any;
   className?: string;
 }
 
@@ -106,9 +106,9 @@ const analyzeCurrentStatus = (currentStatus: any) => {
   if (!stressLevel && !energyLevel && !emotionalState) return null;
 
   const getStatusLevel = (level: number) => {
-    if (level <= 2) return { text: '较低', color: 'bg-blue-500' };
-    if (level <= 3) return { text: '中等', color: 'bg-yellow-500' };
-    return { text: '较高', color: 'bg-red-500' };
+    if (level <= 2) return { text: '较低', color: 'bg-primary' };
+    if (level <= 3) return { text: '中等', color: 'bg-accent' };
+    return { text: '较高', color: 'bg-destructive' };
   };
 
   return {
@@ -119,7 +119,7 @@ const analyzeCurrentStatus = (currentStatus: any) => {
 };
 
 const InstantFeedback: React.FC<InstantFeedbackProps> = ({ step, formData, className = "" }) => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   // 根据步骤渲染不同的反馈内容
   const renderStepFeedback = () => {
@@ -129,27 +129,27 @@ const InstantFeedback: React.FC<InstantFeedbackProps> = ({ step, formData, class
           const zodiac = getZodiacSign(formData.basicInfo.birthDate);
           if (zodiac) {
             return (
-              <Card className="card-gradient crystal-shimmer border-2 border-purple-200/50 shadow-crystal-lg">
+              <Card className="quantum-card">
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 gradient-text text-lg">
-                    <Star className="h-5 w-5 text-purple-600" />
-                    {language === 'zh' ? '✨ 星座能量解读' : '✨ Zodiac Analysis'}
+                  <CardTitle className="flex items-center gap-2 heading-enhanced text-lg">
+                    <Star className="h-5 w-5 text-primary" />
+                    {t('energyExplorationPage.instantFeedback.zodiacAnalysis')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <Badge className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-3 py-1 text-sm font-medium shadow-sm">
+                    <Badge className="bg-primary text-white px-3 py-1 text-sm font-medium shadow-sm">
                       {language === 'zh' ? zodiac.name : zodiac.nameEn}
                     </Badge>
                     <Badge className={`element-${zodiac.element === '火' ? 'fire' : zodiac.element === '水' ? 'water' : zodiac.element === '土' ? 'earth' : 'air'} px-2 py-1 text-xs shadow-sm`}>
                       {zodiac.element}元素
                     </Badge>
                   </div>
-                  <div className="p-3 rounded-lg bg-gradient-to-r from-purple-50/70 to-blue-50/70 border border-purple-200/50 shadow-sm">
-                    <p className="text-sm text-gray-700 mb-1">
-                      <span className="font-semibold gradient-text-cool">特质：</span>{zodiac.trait}
+                  <div className="p-3 rounded-lg hierarchy-secondary border border-border shadow-sm">
+                    <p className="text-sm text-foreground mb-1">
+                      <span className="font-semibold text-primary">特质：</span>{zodiac.trait}
                     </p>
-                    <p className="text-xs text-gray-600/80">
+                    <p className="text-xs text-muted-foreground">
                       💎 你的星座能量将影响水晶的选择和搭配方式
                     </p>
                   </div>
@@ -186,39 +186,39 @@ const InstantFeedback: React.FC<InstantFeedbackProps> = ({ step, formData, class
             const chakraState = analyzeChakraState(chakraScores);
             if (chakraState) {
               return (
-                <Card className="card-gradient-warm crystal-shimmer border-2 border-pink-200/50 shadow-energy-lg">
+                <Card className="quantum-card">
                   <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 gradient-text-warm text-lg">
-                      <Sparkles className="h-5 w-5 text-pink-600" />
-                      {language === 'zh' ? '🌟 脉轮能量预览' : '🌟 Chakra Energy Preview'}
+                    <CardTitle className="flex items-center gap-2 heading-enhanced text-lg">
+                      <Sparkles className="h-5 w-5 text-primary" />
+                      {t('energyExplorationPage.instantFeedback.chakraPreview')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-pink-50/70 to-purple-50/70 border border-pink-200/50 shadow-sm">
-                      <span className="text-sm font-medium gradient-text-warm">整体能量水平</span>
-                      <Badge className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-3 py-1 shadow-sm">
+                    <div className="flex items-center justify-between p-3 rounded-lg hierarchy-secondary border border-border shadow-sm">
+                      <span className="text-sm font-medium text-foreground">整体能量水平</span>
+                      <Badge className="bg-primary text-white px-3 py-1 shadow-sm">
                         {Math.round(chakraState.average * 20)}/100
                       </Badge>
                     </div>
                     <Progress value={chakraState.average * 20} className="h-3 energy-flow" />
                     
                     <div className="grid grid-cols-2 gap-3 text-xs">
-                      <div className="p-3 rounded-lg bg-white/80 border border-pink-200/50 shadow-sm transition-crystal">
+                      <div className="p-3 rounded-lg hierarchy-tertiary border border-border shadow-sm">
                         <div className="flex items-center gap-2 mb-2">
                           <div className={`w-4 h-4 rounded-full ${chakraState.strongest.color} shadow-sm`}></div>
-                          <span className="font-semibold text-gray-700">✨ 最强脉轮</span>
+                          <span className="font-semibold text-foreground">✨ 最强脉轮</span>
                         </div>
-                        <p className="text-gray-800 font-medium">{chakraState.strongest.name}</p>
+                        <p className="text-foreground font-medium">{chakraState.strongest.name}</p>
                       </div>
-                      <div className="p-3 rounded-lg bg-white/80 border border-pink-200/50 shadow-sm transition-crystal">
+                      <div className="p-3 rounded-lg hierarchy-tertiary border border-border shadow-sm">
                         <div className="flex items-center gap-2 mb-2">
                           <div className={`w-4 h-4 rounded-full ${chakraState.weakest.color} shadow-sm`}></div>
-                          <span className="font-semibold text-gray-700">🎯 需要关注</span>
+                          <span className="font-semibold text-foreground">🎯 需要关注</span>
                         </div>
-                        <p className="text-gray-800 font-medium">{chakraState.weakest.name}</p>
+                        <p className="text-foreground font-medium">{chakraState.weakest.name}</p>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-600 bg-white/60 p-2 rounded border border-pink-200/50 text-center">
+                    <p className="text-xs text-muted-foreground hierarchy-quaternary p-2 rounded border border-border text-center">
                       💎 基于脉轮分析为您推荐个性化水晶组合
                     </p>
                   </CardContent>
@@ -235,26 +235,26 @@ const InstantFeedback: React.FC<InstantFeedbackProps> = ({ step, formData, class
           
           if (mbtiTendency) {
             return (
-              <Card className="card-gradient-cool crystal-shimmer border-2 border-green-200/50 shadow-crystal-lg">
+              <Card className="quantum-card">
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 gradient-text-cool text-lg">
-                    <Brain className="h-5 w-5 text-green-600" />
-                    {language === 'zh' ? '🧠 性格特质洞察' : '🧠 Personality Insights'}
+                  <CardTitle className="flex items-center gap-2 heading-enhanced text-lg">
+                    <Brain className="h-5 w-5 text-primary" />
+                    {t('energyExplorationPage.instantFeedback.personalityInsights')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="p-3 rounded-lg bg-gradient-to-r from-green-50/70 to-blue-50/70 border border-green-200/50 shadow-sm">
+                  <div className="p-3 rounded-lg hierarchy-secondary border border-border shadow-sm">
                     <div className="grid grid-cols-2 gap-2 text-xs mb-3">
                       {mbtiTendency.dimensions.map((dimension, idx) => (
-                        <div key={idx} className="p-2 rounded bg-white/80 text-center border border-green-200/50 shadow-sm transition-crystal">
-                          <Badge variant="outline" className="text-xs bg-white/90 border-green-300">
+                        <div key={idx} className="p-2 rounded hierarchy-tertiary text-center border border-border shadow-sm">
+                          <Badge variant="outline" className="text-xs">
                             {dimension}
                           </Badge>
                         </div>
                       ))}
                     </div>
-                    <div className="text-center p-2 bg-white/60 rounded border border-green-200/50">
-                      <span className="text-xs text-gray-600">
+                    <div className="text-center p-2 hierarchy-quaternary rounded border border-border">
+                      <span className="text-xs text-muted-foreground">
                         🔮 正在分析您的性格维度特征...
                       </span>
                     </div>
@@ -278,31 +278,31 @@ const InstantFeedback: React.FC<InstantFeedbackProps> = ({ step, formData, class
           
           if (hasAnyData) {
             return (
-              <Card className="card-gradient crystal-shimmer border-2 border-orange-200/50 shadow-energy-lg">
+              <Card className="quantum-card">
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 gradient-text text-lg">
-                    <Palette className="h-5 w-5 text-orange-600" />
-                    {language === 'zh' ? '🎨 生活风格分析' : '🎨 Lifestyle Analysis'}
+                  <CardTitle className="flex items-center gap-2 heading-enhanced text-lg">
+                    <Palette className="h-5 w-5 text-primary" />
+                    {t('energyExplorationPage.instantFeedback.lifestyleAnalysis')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {colorPreferences && colorPreferences.length > 0 && (
-                      <div className="p-3 rounded-lg bg-gradient-to-r from-orange-50/70 to-red-50/70 border border-orange-200/50 shadow-sm">
-                        <div className="text-sm font-semibold mb-2 gradient-text flex items-center gap-1">
-                          🌈 偏好色彩 
-                          <Badge className="bg-orange-100 text-orange-800 text-xs ml-1">
+                      <div className="p-3 rounded-lg hierarchy-secondary border border-border shadow-sm">
+                        <div className="text-sm font-semibold mb-2 text-foreground flex items-center gap-1">
+                          🌈 偏好色彩
+                          <Badge className="bg-accent text-accent-foreground text-xs ml-1">
                             {colorPreferences.length}项
                           </Badge>
                         </div>
                         <div className="flex flex-wrap gap-1">
-                          {colorPreferences.slice(0, 4).map((color, idx) => (
-                            <Badge key={idx} variant="outline" className="text-xs bg-white/90 border-orange-300 shadow-sm transition-crystal">
+                          {colorPreferences.slice(0, 4).map((color: string, idx: number) => (
+                            <Badge key={idx} variant="outline" className="text-xs shadow-sm">
                               {color}
                             </Badge>
                           ))}
                           {colorPreferences.length > 4 && (
-                            <Badge variant="outline" className="text-xs bg-white/90 border-orange-300">
+                            <Badge variant="outline" className="text-xs">
                               +{colorPreferences.length - 4}
                             </Badge>
                           )}
@@ -311,21 +311,21 @@ const InstantFeedback: React.FC<InstantFeedbackProps> = ({ step, formData, class
                     )}
                     
                     {activityPreferences && activityPreferences.length > 0 && (
-                      <div className="p-3 rounded-lg bg-gradient-to-r from-orange-50/70 to-red-50/70 border border-orange-200/50 shadow-sm">
-                        <div className="text-sm font-semibold mb-2 gradient-text flex items-center gap-1">
+                      <div className="p-3 rounded-lg hierarchy-secondary border border-border shadow-sm">
+                        <div className="text-sm font-semibold mb-2 text-foreground flex items-center gap-1">
                           🏃 活动偏好
-                          <Badge className="bg-orange-100 text-orange-800 text-xs ml-1">
+                          <Badge className="bg-accent text-accent-foreground text-xs ml-1">
                             {activityPreferences.length}项
                           </Badge>
                         </div>
                         <div className="flex flex-wrap gap-1">
-                          {activityPreferences.slice(0, 3).map((activity, idx) => (
-                            <Badge key={idx} className="bg-gradient-to-r from-orange-400 to-red-400 text-white text-xs shadow-sm">
+                          {activityPreferences.slice(0, 3).map((activity: string, idx: number) => (
+                            <Badge key={idx} className="bg-primary text-white text-xs shadow-sm">
                               {activity}
                             </Badge>
                           ))}
                           {activityPreferences.length > 3 && (
-                            <Badge className="bg-gradient-to-r from-orange-400 to-red-400 text-white text-xs">
+                            <Badge className="bg-primary text-white text-xs">
                               +{activityPreferences.length - 3}
                             </Badge>
                           )}
@@ -334,21 +334,21 @@ const InstantFeedback: React.FC<InstantFeedbackProps> = ({ step, formData, class
                     )}
                     
                     {healingGoals && healingGoals.length > 0 && (
-                      <div className="p-3 rounded-lg bg-gradient-to-r from-orange-50/70 to-red-50/70 border border-orange-200/50 shadow-sm">
-                        <div className="text-sm font-semibold mb-2 gradient-text flex items-center gap-1">
+                      <div className="p-3 rounded-lg hierarchy-secondary border border-border shadow-sm">
+                        <div className="text-sm font-semibold mb-2 text-foreground flex items-center gap-1">
                           🎯 疗愈目标
-                          <Badge className="bg-orange-100 text-orange-800 text-xs ml-1">
+                          <Badge className="bg-accent text-accent-foreground text-xs ml-1">
                             {healingGoals.length}项
                           </Badge>
                         </div>
                         <div className="flex flex-wrap gap-1">
-                          {healingGoals.slice(0, 3).map((goal, idx) => (
-                            <Badge key={idx} className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs shadow-sm">
+                          {healingGoals.slice(0, 3).map((goal: string, idx: number) => (
+                            <Badge key={idx} className="bg-primary text-white text-xs shadow-sm">
                               {goal}
                             </Badge>
                           ))}
                           {healingGoals.length > 3 && (
-                            <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs">
+                            <Badge className="bg-primary text-white text-xs">
                               +{healingGoals.length - 3}
                             </Badge>
                           )}
@@ -356,7 +356,7 @@ const InstantFeedback: React.FC<InstantFeedbackProps> = ({ step, formData, class
                       </div>
                     )}
                     
-                    <p className="text-xs text-gray-600 bg-white/70 p-2 rounded border border-orange-200/50 text-center shadow-sm">
+                    <p className="text-xs text-muted-foreground hierarchy-quaternary p-2 rounded border border-border text-center shadow-sm">
                       💎 基于您的生活风格，将为您匹配最合适的水晶能量组合
                     </p>
                   </div>
@@ -373,45 +373,45 @@ const InstantFeedback: React.FC<InstantFeedbackProps> = ({ step, formData, class
           
           if (statusAnalysis) {
             return (
-              <Card className="card-gradient crystal-shimmer border-2 border-teal-200/50 shadow-energy-lg">
+              <Card className="quantum-card">
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 gradient-text text-lg">
-                    <Activity className="h-5 w-5 text-teal-600" />
-                    {language === 'zh' ? '💫 当前状态分析' : '💫 Current Status Analysis'}
+                  <CardTitle className="flex items-center gap-2 heading-enhanced text-lg">
+                    <Activity className="h-5 w-5 text-primary" />
+                    {t('energyExplorationPage.instantFeedback.currentStatusAnalysis')}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-3">
                       {statusAnalysis.stress && (
-                        <div className="p-3 rounded-lg bg-gradient-to-r from-teal-50/70 to-blue-50/70 border border-teal-200/50 shadow-sm">
+                        <div className="p-3 rounded-lg hierarchy-secondary border border-border shadow-sm">
                           <div className="flex items-center gap-2 mb-2">
                             <div className={`w-3 h-3 rounded-full ${statusAnalysis.stress.color}`}></div>
-                            <span className="text-xs font-semibold text-gray-700">💢 压力水平</span>
+                            <span className="text-xs font-semibold text-foreground">💢 压力水平</span>
                           </div>
-                          <p className="text-sm font-medium text-gray-800">{statusAnalysis.stress.text}</p>
+                          <p className="text-sm font-medium text-foreground">{statusAnalysis.stress.text}</p>
                         </div>
                       )}
                       
                       {statusAnalysis.energy && (
-                        <div className="p-3 rounded-lg bg-gradient-to-r from-teal-50/70 to-blue-50/70 border border-teal-200/50 shadow-sm">
+                        <div className="p-3 rounded-lg hierarchy-secondary border border-border shadow-sm">
                           <div className="flex items-center gap-2 mb-2">
                             <div className={`w-3 h-3 rounded-full ${statusAnalysis.energy.color}`}></div>
-                            <span className="text-xs font-semibold text-gray-700">⚡ 能量水平</span>
+                            <span className="text-xs font-semibold text-foreground">⚡ 能量水平</span>
                           </div>
-                          <p className="text-sm font-medium text-gray-800">{statusAnalysis.energy.text}</p>
+                          <p className="text-sm font-medium text-foreground">{statusAnalysis.energy.text}</p>
                         </div>
                       )}
                     </div>
                     
                     {statusAnalysis.emotional && (
-                      <div className="p-3 rounded-lg bg-gradient-to-r from-teal-50/70 to-blue-50/70 border border-teal-200/50 shadow-sm">
-                        <p className="text-xs font-semibold text-gray-700 mb-2">💭 情感状态</p>
-                        <p className="text-sm text-gray-700 italic">"{statusAnalysis.emotional}..."</p>
+                      <div className="p-3 rounded-lg hierarchy-secondary border border-border shadow-sm">
+                        <p className="text-xs font-semibold text-foreground mb-2">💭 情感状态</p>
+                        <p className="text-sm text-muted-foreground italic">"{statusAnalysis.emotional}..."</p>
                       </div>
                     )}
                     
-                    <p className="text-xs text-gray-600 bg-white/70 p-2 rounded border border-teal-200/50 text-center shadow-sm">
+                    <p className="text-xs text-muted-foreground hierarchy-quaternary p-2 rounded border border-border text-center shadow-sm">
                       🔮 根据您的当前状态，推荐适合的水晶疗愈方案
                     </p>
                   </div>

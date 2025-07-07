@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import { PlayCircle, Zap, Brain, Heart, Wind, Loader2, Gem, Sparkles, Clock, Star, AlertCircle } from 'lucide-react';
 import meditationScriptFlow from '@/ai/flows/meditation-script-flow';
 import type { UserProfileDataOutput } from '@/ai/schemas/user-profile-schemas';
-import type { DailyEnergyState } from '@/app/daily-focus/page';
+import type { DailyEnergyState } from '@/types/daily-focus';
 import { cn } from '@/lib/utils';
 
 interface CrystalMeditationProps {
@@ -82,11 +82,11 @@ const CrystalMeditation: React.FC<CrystalMeditationProps> = ({ profile, energySt
           energyLevel: safeEnergyState.energyLevel,
           dominantChakra: safeEnergyState.dominantChakra,
           recommendedCrystal: safeEnergyState.recommendedCrystal,
-          energyColor: safeEnergyState.energyColor,
+          energyColor: safeEnergyState.energyColor || '#6366f1',
           mbtiMood: safeEnergyState.mbtiMood,
           elementBalance: safeEnergyState.elementBalance,
-          isSpecialDay: safeEnergyState.isSpecialDay,
-          specialType: safeEnergyState.specialType,
+          isSpecialDay: safeEnergyState.isSpecialDay || false,
+          specialType: safeEnergyState.specialType || '',
         },
         scenario: scenario,
         duration: String(selectedDuration)
@@ -309,6 +309,9 @@ const CrystalMeditation: React.FC<CrystalMeditationProps> = ({ profile, energySt
                 {selectedDuration}分钟
               </span>
             </DialogTitle>
+            <DialogDescription>
+              根据您的能量状态和水晶选择，为您定制的冥想引导体验
+            </DialogDescription>
           </DialogHeader>
           
           {isLoading ? (

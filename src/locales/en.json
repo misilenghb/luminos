@@ -30,7 +30,42 @@
     "testConnectionTitle": "Firebase Connection Test",
     "testConnectionDescription": "Click the button to write a test document to your Firestore database and verify the connection.",
     "testConnectionButton": "Test Connection",
-    "testingConnectionButton": "Testing..."
+    "testingConnectionButton": "Testing...",
+    "databaseManagement": {
+      "title": "Database Management",
+      "description": "Monitor and repair database table structure and relationships",
+      "helpText": "If you encounter data saving issues or functional anomalies, use this tool to diagnose and repair database relationships.",
+      "button": "Database Relationship Management"
+    },
+    "aiModels": {
+      "title": "AI Model Settings",
+      "description": "Choose the AI models you want to experience, switch with one click anytime!",
+      "imageModelLabel": "Image Generation Model",
+      "imageModelPlaceholder": "Select image generation model",
+      "textModelLabel": "Text Generation Model",
+      "textModelPlaceholder": "Select text generation model",
+      "tokenPlaceholder": "Please enter your Pollinations API Token",
+      "imageModelSwitched": "Image generation model switched",
+      "textModelSwitched": "Text generation model switched",
+      "models": {
+        "flux": "Mainstream text-to-image",
+        "fluxPro": "Enhanced effects",
+        "fluxRealism": "Realistic style",
+        "fluxAnime": "Anime style",
+        "flux3d": "3D style",
+        "fluxCablyai": "Experimental",
+        "turbo": "Fast generation",
+        "variation": "Image variation",
+        "dreamshaper": "Dreamy style",
+        "anything": "Anime style",
+        "pixart": "High-quality illustration",
+        "openai": "GPT series",
+        "mistral": "Mistral LLM",
+        "gemini": "Google Gemini"
+      }
+    },
+    "themeTest": "Theme Test Component",
+    "userGalleryStats": "User Gallery Statistics"
   },
   "loginPage": {
     "title": "Login",
@@ -83,11 +118,50 @@
     }
   },
   "homePage": {
-    "mainHeading": "Crystal Visions AI",
-    "subHeading": "Harness the power of AI to explore the energetic properties of crystals and generate personalized jewelry designs. Blend ancient wisdom with modern technology for your unique vision.",
-    "startButton": "Your Energy Profile",
-    "quickModeButton": "Quick Design Mode",
-    "discoverTagline": "Discover your crystal allies & craft your vision."
+    "mainHeading": "Luminos",
+    "subHeading": "Personalized energy management platform based on scientific psychology and ancient wisdom",
+    "description": "Through MBTI personality analysis, chakra energy assessment, and AI intelligent insights, help you better understand yourself and optimize your daily life rhythm",
+    "startButton": "Start Experience",
+    "energyExplorationButton": "Energy Exploration",
+    "discoverTagline": "Discover your crystal allies & craft your vision.",
+    "stats": {
+      "activeUsers": "Active Users",
+      "personalityTypes": "Personality Types",
+      "chakraCenters": "Chakra Centers",
+      "crystalTypes": "Crystal Types"
+    },
+    "featuresTitle": "Powerful Features",
+    "featuresDescription": "Perfect combination of science and spirituality, providing comprehensive personal growth support",
+    "ctaTitle": "Ready to start your energy management journey?",
+    "ctaDescription": "Get personalized energy insights and recommendations in just a few minutes",
+    "ctaStartButton": "Start Now",
+    "ctaDailyFocusButton": "Daily Focus",
+    "features": {
+      "aiAnalysis": {
+        "title": "AI Smart Analysis",
+        "description": "Deep personality analysis based on MBTI and chakras",
+        "stats": "85%",
+        "statsLabel": "Accuracy"
+      },
+      "energyTracking": {
+        "title": "Energy Tracking",
+        "description": "Real-time monitoring and prediction of your energy state",
+        "stats": "24/7",
+        "statsLabel": "Monitoring"
+      },
+      "smartSchedule": {
+        "title": "Smart Scheduling",
+        "description": "Optimize schedule based on energy state",
+        "stats": "30%",
+        "statsLabel": "Efficiency Boost"
+      },
+      "crystalGuidance": {
+        "title": "Crystal Guidance",
+        "description": "Personalized crystal energy recommendations",
+        "stats": "100+",
+        "statsLabel": "Crystal Library"
+      }
+    }
   },
   "dailyFocusPage": {
     "titleToday": "Today's Focus",
@@ -155,6 +229,77 @@
     "tabs": {
       "questionnaire": "Personalized Profile",
       "crystalFiltering": "Crystal Filtering"
+    },
+    "instantFeedback": {
+      "zodiacAnalysis": "✨ Zodiac Analysis",
+      "chakraPreview": "🌟 Chakra Energy Preview",
+      "personalityInsights": "🧠 Personality Insights",
+      "lifestyleAnalysis": "🎨 Lifestyle Analysis",
+      "currentStatusAnalysis": "💫 Current Status Analysis"
+    },
+    "fiveDimensional": {
+      "title": "🌟 Your Personal Trait Analysis",
+      "titleEnhanced": "🌟 Your Eight-Dimensional Energy Profile",
+      "description": "Like a health checkup, this shows your status in personality, emotions, body, talents, and luck to help you understand yourself better",
+      "descriptionEnhanced": "Eight-dimensional energy analysis based on enhanced assessment, covering personality, zodiac, chakra, elements, planets, life path, physical energy, and social energy for comprehensive self-understanding",
+      "enhanced": "Enhanced",
+      "displaySettings": "Display Settings",
+      "compactMode": "Compact",
+      "detailedMode": "Detailed",
+      "advancedContent": "Advanced Content",
+      "showAll": "Show All",
+      "hideAll": "Hide All",
+      "coreAnalysis": "Core Analysis",
+      "deepInsights": "Deep Insights",
+      "personalizedTips": "Personalized Tips",
+      "overallStatus": "😊 Overall Status",
+      "balanceLevel": "⚖️ Balance Level",
+      "synergyLevel": "🤝 Synergy Level",
+      "harmony": "Harmony",
+      "suggestionsTitle": "💡 Suggestions Just For You",
+      "todayActions": "🎯 Small Things You Can Do Today",
+      "weeklyHabits": "📅 Weekly Habits",
+      "understandYourself": "🎭 Simply Understanding Yourself",
+      "innerMotivation": "💪 Inner Motivation",
+      "workingStyle": "🎨 Working Style",
+      "currentStatus": "📈 Current Status",
+      "energyCode": "🔮 Your Energy Code",
+      "relationshipMap": "💝 Relationship Map",
+      "financialCode": "💰 Financial Energy Code",
+      "crystalMatrix": "💎 Crystal Matrix",
+      "scientificAnalysis": "🔍 Scientific Analysis"
+    },
+    "lifeScenarios": {
+      "title": "🌟 Life Scenario Guidance",
+      "description": "Based on your energy profile, recommend suitable crystals and usage methods for different life scenarios",
+      "work": {
+        "title": "Work & Career",
+        "description": "Enhance focus, relieve stress, strengthen leadership"
+      },
+      "love": {
+        "title": "Love & Relationships",
+        "description": "Deepen connections, enhance charm, resolve conflicts"
+      },
+      "health": {
+        "title": "Health Management",
+        "description": "Balance mind-body, boost vitality, improve sleep"
+      },
+      "finance": {
+        "title": "Financial Planning",
+        "description": "Attract wealth, make rational decisions, boost confidence"
+      },
+      "usageTips": "💡 Usage Tips",
+      "personalizedTip": "💫 Personalized Tip"
+    },
+    "questionnaire": {
+      "enhancedAssessment": {
+        "declineButton": "Not now",
+        "acceptButton": "Start Deep Assessment ✨"
+      },
+      "storage": {
+        "saveError": "Unable to save questionnaire progress to local storage:",
+        "clearError": "Unable to clear questionnaire data from local storage:"
+      }
     },
     "questionnaire": {
       "title": "Personalized Energy Profile",
@@ -1350,8 +1495,9 @@
     "zodiacSign": "Zodiac Sign:",
     "element": "Element:",
     "mbtiLikeType": "Personality Type (MBTI-like):",
-    "backButton": "返回",
-    "cancelButton": "取消"
+    "backButton": "Back",
+    "cancelButton": "Cancel",
+    "currentModel": "Current model: {{model}}"
   },
   "promptBuilder": {
     "and": "and",

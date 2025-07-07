@@ -139,7 +139,7 @@ export default function UserGalleryStats() {
   };
 
   const getMostFrequentCrystal = (designs: DesignWork[]): string => {
-    const crystals = designs.flatMap(d => d.crystal_types || []);
+    const crystals = designs.flatMap(d => d.crystals_used || []);
     if (crystals.length === 0) return '紫水晶';
     
     const frequency = crystals.reduce((acc, crystal) => {
@@ -281,7 +281,7 @@ export default function UserGalleryStats() {
               <div className="flex flex-wrap gap-1">
                 {recentWorks.map((work, index) => (
                   <Badge key={work.id} variant="outline" className="text-xs">
-                    {work.name || `作品 ${index + 1}`}
+                    {work.title || `作品 ${index + 1}`}
                   </Badge>
                 ))}
               </div>

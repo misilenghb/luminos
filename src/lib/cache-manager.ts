@@ -452,5 +452,5 @@ export function clearCacheByPattern(pattern: string): void {
     }
   }
   
-  keysToDelete.forEach(key => globalCache.delete(key));
+  keysToDelete.forEach(key => globalCache['cache'].delete(key));
 } 

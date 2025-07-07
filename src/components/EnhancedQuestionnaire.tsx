@@ -691,7 +691,7 @@ const EnhancedQuestionnaire: React.FC<EnhancedQuestionnaireProps> = ({ onComplet
                 // 调用完成回调
                 onComplete(formData);
               }}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+              className=""
             >
               完成评估
             </Button>
